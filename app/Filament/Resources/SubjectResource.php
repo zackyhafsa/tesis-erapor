@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SubjectResource\Pages;
-use App\Filament\Resources\SubjectResource\RelationManagers;
 use App\Models\Subject;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SubjectResource extends Resource
 {
@@ -27,13 +24,10 @@ class SubjectResource extends Resource
                     ->label('Nama Mata Pelajaran')
                     ->required()
                     ->maxLength(255),
-                
-                // Input angka untuk nilai ketuntasan (KKTP)
                 Forms\Components\TextInput::make('kktp')
-                    ->label('KKTP (Batas Tuntas)')
-                    ->required()
+                    ->label('KKTP (Contoh: 75)')
                     ->numeric()
-                    ->default(75),
+                    ->required(),
             ]);
     }
 

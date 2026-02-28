@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ScoreResource\Pages;
-use App\Filament\Resources\ScoreResource\RelationManagers;
 use App\Models\Score;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ScoreResource extends Resource
 {
@@ -23,7 +20,6 @@ class ScoreResource extends Resource
     {
         return $form
             ->schema([
-                // Pilih Siswa
                 Forms\Components\Select::make('student_id')
                     ->relationship('student', 'nama')
                     ->label('Pilih Siswa')
@@ -32,7 +28,6 @@ class ScoreResource extends Resource
                     ->required()
                     ->columnSpanFull(),
 
-                // Pilih Indikator Penilaian
                 Forms\Components\Select::make('indicator_id')
                     ->relationship('indicator', 'nama_indikator')
                     ->label('Pilih Indikator Penilaian')
@@ -41,7 +36,6 @@ class ScoreResource extends Resource
                     ->required()
                     ->columnSpanFull(),
 
-                // Pilihan Skor 1 sampai 4 menggunakan tombol Radio agar mudah diklik
                 Forms\Components\Radio::make('score_value')
                     ->label('Berikan Skor (1 - 4)')
                     ->options([
@@ -50,8 +44,15 @@ class ScoreResource extends Resource
                         3 => '3 - Baik',
                         4 => '4 - Sangat Baik',
                     ])
-                    ->inline() // Agar tampilannya menyamping/horizontal
+                    ->inline()
                     ->required()
+                    ->columnSpanFull(),
+
+                // --- INI KOLOM CATATAN GURU BARU ---
+                Forms\Components\TextInput::make('catatan_guru')
+                    ->label('Catatan Guru (Opsional)')
+                    ->placeholder('Contoh: Sudah bagus, tingkatkan lagi!')
+                    ->maxLength(255)
                     ->columnSpanFull(),
             ]);
     }
@@ -64,12 +65,12 @@ class ScoreResource extends Resource
                     ->label('Nama Siswa')
                     ->sortable()
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('indicator.nama_indikator')
                     ->label('Indikator')
                     ->limit(40)
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('score_value')
                     ->label('Skor')
                     ->badge() // Membuat skor tampil seperti label berwarna

@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SchoolProfileResource\Pages;
-use App\Filament\Resources\SchoolProfileResource\RelationManagers;
 use App\Models\SchoolProfile;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SchoolProfileResource extends Resource
 {
@@ -23,25 +20,59 @@ class SchoolProfileResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_sekolah')
-                    ->label('Nama Sekolah')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('kepala_sekolah')
-                    ->label('Nama Kepala Sekolah')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('nip_kepsek')
-                    ->label('NIP Kepala Sekolah')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('guru_kelas')
-                    ->label('Nama Guru Kelas')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('nip_guru')
-                    ->label('NIP Guru Kelas')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('tahun_pelajaran')
-                    ->label('Tahun Pelajaran (Contoh: 2025/2026)')
-                    ->maxLength(255),
+                Forms\Components\Section::make('Identitas Sekolah')
+                    ->columns(3) // Dibagi jadi 3 kolom agar rapi menyamping
+                    ->schema([
+                        Forms\Components\TextInput::make('nama_sekolah')->required(),
+                        Forms\Components\TextInput::make('npsn')->label('NPSN'),
+                        Forms\Components\TextInput::make('nss')->label('NSS'),
+                    ]),
+
+                Forms\Components\Section::make('Alamat Sekolah')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\TextInput::make('alamat')->columnSpanFull(),
+                        Forms\Components\TextInput::make('desa'),
+                        Forms\Components\TextInput::make('kecamatan'),
+                        Forms\Components\TextInput::make('kabupaten'),
+                        Forms\Components\TextInput::make('provinsi'),
+                        Forms\Components\TextInput::make('kode_pos'),
+                    ]),
+
+                Forms\Components\Section::make('Informasi Kelas & Akademik')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('kelas')->label('Kelas (Contoh: I)'),
+                        Forms\Components\TextInput::make('fase')->label('Fase (Contoh: A)'),
+                        Forms\Components\TextInput::make('semester')->label('Semester (Contoh: I (Satu))'),
+                        Forms\Components\TextInput::make('tahun_pelajaran')->label('Tahun Pelajaran'),
+                    ]),
+
+                Forms\Components\Section::make('Penandatangan & Rapor')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('kepala_sekolah')->label('Nama Kepala Sekolah'),
+                        Forms\Components\TextInput::make('nip_kepsek')->label('NIP Kepala Sekolah'),
+                        Forms\Components\TextInput::make('guru_kelas')->label('Nama Guru Kelas'),
+                        Forms\Components\TextInput::make('nip_guru')->label('NIP Guru Kelas'),
+                        Forms\Components\TextInput::make('tempat_cetak')->label('Tempat Rapor (Contoh: Kertajati)'),
+                        Forms\Components\DatePicker::make('tanggal_cetak')->label('Tanggal Cetak Rapor'),
+                    ]),
+
+                \Filament\Forms\Components\Section::make('Logo Sekolah & Dinas')
+                    ->schema([
+                        \Filament\Forms\Components\FileUpload::make('logo_kiri')
+                            ->label('Logo Kiri (Kabupaten/Dinas)')
+                            ->image()
+                            ->directory('logos') // Gambar akan disimpan di folder storage/app/public/logos
+                            ->maxSize(2048), // Maksimal 2MB
+
+                        \Filament\Forms\Components\FileUpload::make('logo_kanan')
+                            ->label('Logo Kanan (Sekolah)')
+                            ->image()
+                            ->directory('logos')
+                            ->maxSize(2048),
+                    ])->columns(2),
             ]);
     }
 

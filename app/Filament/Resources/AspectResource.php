@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AspectResource\Pages;
-use App\Filament\Resources\AspectResource\RelationManagers;
 use App\Models\Aspect;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AspectResource extends Resource
 {
@@ -30,7 +27,7 @@ class AspectResource extends Resource
                         'Proyek' => 'Penilaian Proyek',
                     ])
                     ->required(),
-                
+
                 Forms\Components\TextInput::make('nama_aspek')
                     ->label('Nama Aspek (Contoh: Pemahaman Tugas)')
                     ->required()
@@ -47,10 +44,18 @@ class AspectResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->badge(), // Tampilan label warna-warni
-                
+
                 Tables\Columns\TextColumn::make('nama_aspek')
                     ->label('Aspek Penilaian')
                     ->searchable(),
+            ])
+            ->headerActions([
+                // INI DIA TOMBOL IMPORT-NYA
+                Tables\Actions\ImportAction::make()
+                    ->importer(\App\Filament\Imports\AspectImporter::class)
+                    ->label('Import Aspek dari CSV')
+                    ->color('primary')
+                    ->icon('heroicon-o-arrow-up-tray'),
             ])
             ->filters([
                 //
