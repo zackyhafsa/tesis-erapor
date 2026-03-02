@@ -98,7 +98,7 @@
                         </thead>
                         <tbody>
                             @forelse($pengayaanRemedial as $idx => $siswa)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <tr>
                                     <td class="border p-2 text-center">{{ $idx + 1 }}</td>
                                     <td class="border p-2">{{ $siswa['nipd'] ?? '-' }}</td>
                                     <td class="border p-2 font-medium">{{ $siswa['nama'] }}</td>

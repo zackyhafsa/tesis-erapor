@@ -435,7 +435,7 @@
                     Semua yang Anda <span class="gradient-text">Butuhkan</span>
                 </h2>
                 <p class="text-gray-600 text-base sm:text-lg">Fitur lengkap untuk mendukung proses penilaian berbasis
-                    proyek dan kinerja di tingkat PAUD</p>
+                    proyek dan kinerja</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -674,13 +674,13 @@
                         Tentang SIPEKA
                     </div>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">
-                        Dibangun untuk <span class="gradient-text">Guru PAUD</span> Indonesia
+                        Dibangun untuk <span class="gradient-text">Guru</span> Indonesia
                     </h2>
                     <div class="space-y-4 text-gray-600 leading-relaxed">
                         <p>
                             <strong class="text-gray-800">SIPEKA</strong> (Sistem Penilaian Proyek dan Kinerja) adalah
                             aplikasi E-Rapor yang dikembangkan sebagai bagian dari penelitian tesis untuk membantu para
-                            guru PAUD dalam mengelola penilaian siswa secara digital.
+                            guru dalam mengelola penilaian siswa secara digital.
                         </p>
                         <p>
                             Sistem ini menerapkan pendekatan penilaian berbasis <strong
