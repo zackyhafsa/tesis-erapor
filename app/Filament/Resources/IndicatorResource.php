@@ -14,7 +14,17 @@ class IndicatorResource extends Resource
 {
     protected static ?string $model = Indicator::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+
+    protected static ?string $navigationLabel = 'Indikator Penilaian';
+
+    protected static ?string $modelLabel = 'Indikator Penilaian';
+
+    protected static ?string $pluralModelLabel = 'Indikator Penilaian';
+
+    protected static ?string $navigationGroup = 'Penilaian';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

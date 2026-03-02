@@ -14,7 +14,17 @@ class ScoreResource extends Resource
 {
     protected static ?string $model = Score::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calculator';
+
+    protected static ?string $navigationLabel = 'Data Nilai';
+
+    protected static ?string $modelLabel = 'Nilai';
+
+    protected static ?string $pluralModelLabel = 'Data Nilai';
+
+    protected static ?string $navigationGroup = 'Penilaian';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

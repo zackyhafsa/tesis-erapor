@@ -10,6 +10,7 @@ class PredikatChart extends ChartWidget
 {
     protected static ?string $heading = 'Distribusi Predikat Kelas';
     protected static ?int $sort = 3;
+    protected static ?string $maxHeight = '320px';
 
     protected function getData(): array
     {

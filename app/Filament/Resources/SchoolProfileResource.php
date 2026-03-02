@@ -14,7 +14,17 @@ class SchoolProfileResource extends Resource
 {
     protected static ?string $model = SchoolProfile::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+
+    protected static ?string $navigationLabel = 'Profil Sekolah';
+
+    protected static ?string $modelLabel = 'Profil Sekolah';
+
+    protected static ?string $pluralModelLabel = 'Profil Sekolah';
+
+    protected static ?string $navigationGroup = 'Data Sekolah';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

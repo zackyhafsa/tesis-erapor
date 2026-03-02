@@ -14,7 +14,17 @@ class AspectResource extends Resource
 {
     protected static ?string $model = Aspect::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    protected static ?string $navigationLabel = 'Aspek Penilaian';
+
+    protected static ?string $modelLabel = 'Aspek Penilaian';
+
+    protected static ?string $pluralModelLabel = 'Aspek Penilaian';
+
+    protected static ?string $navigationGroup = 'Penilaian';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

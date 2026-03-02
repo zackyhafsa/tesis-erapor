@@ -17,7 +17,17 @@ class LearningOutcomeResource extends Resource
 {
     protected static ?string $model = LearningOutcome::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+
+    protected static ?string $navigationLabel = 'Capaian Pembelajaran';
+
+    protected static ?string $modelLabel = 'Capaian Pembelajaran';
+
+    protected static ?string $pluralModelLabel = 'Capaian Pembelajaran';
+
+    protected static ?string $navigationGroup = 'Kurikulum';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

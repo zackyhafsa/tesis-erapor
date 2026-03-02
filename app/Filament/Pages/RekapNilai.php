@@ -23,6 +23,8 @@ class RekapNilai extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Rekap Nilai';
 
+    protected static ?string $navigationGroup = 'Laporan';
+
     protected static ?string $title = 'Rekapitulasi Nilai Kelas';
 
     protected static ?int $navigationSort = 5;

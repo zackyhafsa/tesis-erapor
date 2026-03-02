@@ -17,7 +17,17 @@ class LearningObjectiveResource extends Resource
 {
     protected static ?string $model = LearningObjective::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
+
+    protected static ?string $navigationLabel = 'Tujuan Pembelajaran';
+
+    protected static ?string $modelLabel = 'Tujuan Pembelajaran';
+
+    protected static ?string $pluralModelLabel = 'Tujuan Pembelajaran';
+
+    protected static ?string $navigationGroup = 'Kurikulum';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

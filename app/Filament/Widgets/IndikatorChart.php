@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class IndikatorChart extends ChartWidget
 {
     protected static ?string $heading = 'Peta Kekuatan & Kelemahan Indikator';
-    protected static ?int $sort = 2; // Agar posisinya di bawah Kartu Statistik
+    protected static ?int $sort = 3; // Agar posisinya di bawah Kartu Statistik
 
     protected function getData(): array
     {

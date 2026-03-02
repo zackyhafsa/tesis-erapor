@@ -17,7 +17,17 @@ class ReflectionResource extends Resource
 {
     protected static ?string $model = Reflection::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
+
+    protected static ?string $navigationLabel = 'Refleksi Guru';
+
+    protected static ?string $modelLabel = 'Refleksi Guru';
+
+    protected static ?string $pluralModelLabel = 'Refleksi Guru';
+
+    protected static ?string $navigationGroup = 'Penilaian';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
