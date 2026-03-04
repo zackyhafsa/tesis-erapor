@@ -17,7 +17,8 @@ class AspekRadarChart extends ChartWidget
 
     protected function getData(): array
     {
-        $aspects = Aspect::with('indicators')->get();
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $aspects = Aspect::where('school_profile_id', $tenantId)->with('indicators')->get();
 
         $labels = [];
         $dataProyek = [];
@@ -37,7 +38,7 @@ class AspekRadarChart extends ChartWidget
             $aspekP = $aspekProyek->firstWhere('nama_aspek', $namaAspek);
             if ($aspekP) {
                 $indIds = $aspekP->indicators->pluck('id');
-                $avg = Score::whereIn('indicator_id', $indIds)->avg('score_value');
+                $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
                 $dataProyek[] = round($avg ?? 0, 2);
             } else {
                 $dataProyek[] = 0;
@@ -47,7 +48,7 @@ class AspekRadarChart extends ChartWidget
             $aspekK = $aspekKinerja->firstWhere('nama_aspek', $namaAspek);
             if ($aspekK) {
                 $indIds = $aspekK->indicators->pluck('id');
-                $avg = Score::whereIn('indicator_id', $indIds)->avg('score_value');
+                $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
                 $dataKinerja[] = round($avg ?? 0, 2);
             } else {
                 $dataKinerja[] = 0;

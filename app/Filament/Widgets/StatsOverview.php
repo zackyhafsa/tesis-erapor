@@ -12,18 +12,20 @@ class StatsOverview extends BaseWidget
     protected static ?int $sort = -2;
     protected function getStats(): array
     {
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+
         // 1. Menghitung total siswa
-        $totalSiswa = Student::count();
+        $totalSiswa = Student::where('school_profile_id', $tenantId)->count();
 
         // 2. Menghitung rata-rata nilai seluruh kelas (dari skor 1-4)
-        $rataRataKelas = Score::avg('score_value') ?? 0;
+        $rataRataKelas = Score::where('school_profile_id', $tenantId)->avg('score_value') ?? 0;
         
         // Mengubah rata-rata menjadi skala 100 (opsional, agar mudah dibaca)
         // Karena nilai maksimal 4, maka (rata-rata / 4) * 100
         $rataRataSkala100 = ($rataRataKelas / 4) * 100;
 
         // 3. Menghitung total data nilai yang sudah masuk
-        $totalPenilaian = Score::count();
+        $totalPenilaian = Score::where('school_profile_id', $tenantId)->count();
 
         return [
             Stat::make('Total Siswa', $totalSiswa)

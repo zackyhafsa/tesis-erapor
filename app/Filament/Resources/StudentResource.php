@@ -39,6 +39,41 @@ class StudentResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('nipd')->label('NIPD / NISN'),
                                 Forms\Components\TextInput::make('nama')->label('Nama Lengkap')->required(),
+                                Forms\Components\Select::make('kelas')
+                                    ->label('Kelas')
+                                    ->options([
+                                        '1A' => '1A', '1B' => '1B',
+                                        '2A' => '2A', '2B' => '2B',
+                                        '3A' => '3A', '3B' => '3B',
+                                        '4A' => '4A', '4B' => '4B',
+                                        '5A' => '5A', '5B' => '5B',
+                                        '6A' => '6A', '6B' => '6B',
+                                    ])
+                                    ->searchable()
+                                    ->required()
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                        // Otomatis isi fase berdasarkan kelas
+                                        if ($state) {
+                                            $angkaKelas = (int) substr($state, 0, 1);
+                                            $fase = match (true) {
+                                                $angkaKelas <= 2 => 'A',
+                                                $angkaKelas <= 4 => 'B',
+                                                default => 'C',
+                                            };
+                                            $set('fase', $fase);
+                                        }
+                                    }),
+                                Forms\Components\Select::make('fase')
+                                    ->label('Fase')
+                                    ->options([
+                                        'A' => 'Fase A (Kelas 1-2)',
+                                        'B' => 'Fase B (Kelas 3-4)',
+                                        'C' => 'Fase C (Kelas 5-6)',
+                                    ])
+                                    ->required()
+                                    ->disabled()
+                                    ->dehydrated(),
                                 Forms\Components\Select::make('jenis_kelamin')->label('Jenis Kelamin')->options(['L' => 'Laki-laki', 'P' => 'Perempuan']),
                                 Forms\Components\TextInput::make('agama')->label('Agama'),
                                 Forms\Components\TextInput::make('tempat_lahir')->label('Tempat Lahir'),
@@ -93,6 +128,23 @@ class StudentResource extends Resource
                     ->label('Nama Lengkap')
                     ->searchable(),
 
+                // Menampilkan kolom Kelas
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->searchable(),
+
+                // Menampilkan kolom Fase
+                Tables\Columns\TextColumn::make('fase')
+                    ->label('Fase')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'A' => 'info',
+                        'B' => 'warning',
+                        'C' => 'success',
+                        default => 'gray',
+                    }),
+
                 // Menampilkan kolom Jenis Kelamin
                 Tables\Columns\TextColumn::make('jenis_kelamin')
                     ->label('L/P')
@@ -116,7 +168,7 @@ class StudentResource extends Resource
                     ->form([
                         \Filament\Forms\Components\Select::make('subject_id')
                             ->label('Pilih Mata Pelajaran')
-                            ->options(\App\Models\Subject::pluck('nama_mapel', 'id'))
+                            ->options(fn () => \App\Models\Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
                             ->searchable()
                             ->required(),
 
@@ -189,7 +241,8 @@ class StudentResource extends Resource
 
                     // 2. Membuat Form Dinamis (Memanggil seluruh indikator dari database)
                     ->form(function () {
-                        $indicators = \App\Models\Indicator::with('aspect')->get();
+                        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                        $indicators = \App\Models\Indicator::where('school_profile_id', $tenantId)->with('aspect')->get();
                         $groupedIndicators = $indicators->groupBy('aspect_id');
 
                         $schema = [];
@@ -237,6 +290,7 @@ class StudentResource extends Resource
                                     ],
                                     [
                                         'score_value' => $value,
+                                        'school_profile_id' => \Filament\Facades\Filament::getTenant()?->id,
                                     ]
                                 );
                             }

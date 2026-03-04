@@ -20,9 +20,11 @@ class TopBottomStudentsWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+
         return $table
             ->query(
-                Student::query()->whereHas('scores')
+                Student::query()->where('school_profile_id', $tenantId)->whereHas('scores')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('rank')
@@ -83,13 +85,13 @@ class TopBottomStudentsWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('jumlah_nilai')
                     ->label('Jml Dinilai')
                     ->getStateUsing(function (Student $record): string {
-                        $totalInd = Indicator::count();
+                        $totalInd = Indicator::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->count();
                         $dinilai = $record->scores()->count();
                         return $dinilai . '/' . $totalInd;
                     })
                     ->alignCenter()
                     ->color(function (Student $record): string {
-                        $totalInd = Indicator::count();
+                        $totalInd = Indicator::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->count();
                         $dinilai = $record->scores()->count();
                         return $dinilai >= $totalInd ? 'success' : 'warning';
                     }),

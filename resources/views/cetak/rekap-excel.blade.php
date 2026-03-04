@@ -8,7 +8,7 @@
         <th colspan="{{ count($aspects) + 5 }}" style="font-size: 14px; font-weight: bold; text-align: center;">{{ strtoupper($sekolah->nama_sekolah ?? 'NAMA SEKOLAH') }}</th>
     </tr>
     <tr>
-        <th colspan="{{ count($aspects) + 5 }}" style="text-align: center;">Mata Pelajaran: {{ $mapel->nama_mapel ?? '-' }} | KKTP: {{ $kktp ?? '-' }} | Kelas/Fase: {{ $sekolah->kelas ?? '-' }} / {{ $sekolah->fase ?? '-' }}</th>
+        <th colspan="{{ count($aspects) + 5 }}" style="text-align: center;">Mata Pelajaran: {{ $mapel->nama_mapel ?? '-' }} | KKTP: {{ $kktp ?? '-' }}</th>
     </tr>
     <tr></tr> </table>
 

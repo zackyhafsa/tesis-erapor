@@ -15,17 +15,20 @@ class ProgresInputWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalSiswa = Student::count();
-        $totalIndikator = Indicator::count();
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+
+        $totalSiswa = Student::where('school_profile_id', $tenantId)->count();
+        $totalIndikator = Indicator::where('school_profile_id', $tenantId)->count();
         $targetTotal = $totalSiswa * $totalIndikator;
 
-        $sudahDinilai = Score::count();
+        $sudahDinilai = Score::where('school_profile_id', $tenantId)->count();
         $persentase = $targetTotal > 0 ? round(($sudahDinilai / $targetTotal) * 100, 1) : 0;
 
         // Siswa yang sudah dinilai LENGKAP (semua indikator terisi)
         $siswaLengkap = 0;
         if ($totalIndikator > 0) {
-            $siswaLengkap = Student::withCount('scores')
+            $siswaLengkap = Student::where('school_profile_id', $tenantId)
+                ->withCount('scores')
                 ->get()
                 ->filter(fn ($s) => $s->scores_count >= $totalIndikator)
                 ->count();
@@ -33,8 +36,13 @@ class ProgresInputWidget extends BaseWidget
         $siswaBelum = $totalSiswa - $siswaLengkap;
 
         // Jumlah Indikator Proyek vs Kinerja
-        $indikatorProyek = Indicator::whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Proyek'))->count();
-        $indikatorKinerja = Indicator::whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Kinerja'))->count();
+        $indikatorProyek = Indicator::where('school_profile_id', $tenantId)
+            ->whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Proyek'))
+            ->count();
+            
+        $indikatorKinerja = Indicator::where('school_profile_id', $tenantId)
+            ->whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Kinerja'))
+            ->count();
 
         return [
             Stat::make('Progres Penilaian', $persentase . '%')

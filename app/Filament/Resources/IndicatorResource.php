@@ -30,9 +30,8 @@ class IndicatorResource extends Resource
     {
         return $form
             ->schema([
-                // Dropdown untuk memilih Aspek
                 Forms\Components\Select::make('aspect_id')
-                    ->relationship('aspect', 'nama_aspek')
+                    ->relationship('aspect', 'nama_aspek', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
                     ->label('Pilih Aspek Penilaian')
                     ->searchable()
                     ->preload()

@@ -36,15 +36,29 @@ class RekapNilai extends Page implements HasForms
 
     public ?string $jenis_penilaian = 'Proyek';
 
-    public ?string $konsep_ketuntasan = 'Tidak Range'; // <-- VARIABEL BARU
+    public ?string $konsep_ketuntasan = 'Tidak Range';
+
+    // Rentang nilai untuk konsep Range
+    public ?int $range_tuntas_min = 75;
+
+    public ?int $range_tuntas_max = 100;
+
+    public ?int $range_tidak_tuntas_min = 0;
+
+    public ?int $range_tidak_tuntas_max = 74;
 
     public function mount()
     {
-        $this->subject_id = Subject::first()->id ?? null;
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $this->subject_id = Subject::where('school_profile_id', $tenantId)->first()->id ?? null;
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
             'konsep_ketuntasan' => $this->konsep_ketuntasan,
+            'range_tuntas_min' => $this->range_tuntas_min,
+            'range_tuntas_max' => $this->range_tuntas_max,
+            'range_tidak_tuntas_min' => $this->range_tidak_tuntas_min,
+            'range_tidak_tuntas_max' => $this->range_tidak_tuntas_max,
         ]);
     }
 
@@ -54,7 +68,7 @@ class RekapNilai extends Page implements HasForms
             ->schema([
                 Select::make('subject_id')
                     ->label('Pilih Mata Pelajaran')
-                    ->options(Subject::pluck('nama_mapel', 'id'))
+                    ->options(fn () => Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
 
@@ -67,16 +81,57 @@ class RekapNilai extends Page implements HasForms
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->jenis_penilaian = $state),
 
-                // --- INPUTAN BARU: PILIHAN KONSEP KETUNTASAN ---
                 Select::make('konsep_ketuntasan')
                     ->label('Konsep Ketuntasan')
                     ->options([
-                        'Tidak Range' => 'Tidak Range (Tuntas / Belum Tuntas)',
-                        'Range' => 'Range (Predikat Rentang Nilai)',
+                        'Tidak Range' => 'Tidak Range (Otomatis dari KKTP)',
+                        'Range' => 'Range (Tentukan Rentang Nilai)',
                     ])
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->konsep_ketuntasan = $state),
-            ])->columns(3); // Ubah jadi 3 kolom biar sejajar rapi
+
+                // Input rentang nilai untuk Tuntas (hanya muncul saat konsep = Range)
+                \Filament\Forms\Components\Fieldset::make('Rentang Nilai Tuntas')
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('range_tuntas_min')
+                            ->label('Nilai Min')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->live()
+                            ->afterStateUpdated(fn ($state) => $this->range_tuntas_min = (int) $state),
+                        \Filament\Forms\Components\TextInput::make('range_tuntas_max')
+                            ->label('Nilai Max')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->live()
+                            ->afterStateUpdated(fn ($state) => $this->range_tuntas_max = (int) $state),
+                    ])
+                    ->columns(2)
+                    ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
+
+                // Input rentang nilai untuk Tidak Tuntas (hanya muncul saat konsep = Range)
+                \Filament\Forms\Components\Fieldset::make('Rentang Nilai Tidak Tuntas')
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('range_tidak_tuntas_min')
+                            ->label('Nilai Min')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->live()
+                            ->afterStateUpdated(fn ($state) => $this->range_tidak_tuntas_min = (int) $state),
+                        \Filament\Forms\Components\TextInput::make('range_tidak_tuntas_max')
+                            ->label('Nilai Max')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->live()
+                            ->afterStateUpdated(fn ($state) => $this->range_tidak_tuntas_max = (int) $state),
+                    ])
+                    ->columns(2)
+                    ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
+            ])->columns(3);
     }
 
     // --- 1. MEMBUAT TOMBOL EXPORT DI POJOK KANAN ATAS ---
@@ -107,7 +162,7 @@ class RekapNilai extends Page implements HasForms
         }
 
         $data = $this->getViewData();
-        $data['sekolah'] = SchoolProfile::first();
+        $data['sekolah'] = \Filament\Facades\Filament::getTenant();
         $data['jenis_penilaian'] = $this->jenis_penilaian;
 
         $pdf = Pdf::loadView('cetak.rekap-pdf', $data)->setPaper('a4', 'landscape');
@@ -125,7 +180,7 @@ class RekapNilai extends Page implements HasForms
         }
 
         $data = $this->getViewData();
-        $data['sekolah'] = SchoolProfile::first();
+        $data['sekolah'] = \Filament\Facades\Filament::getTenant();
         $data['jenis_penilaian'] = $this->jenis_penilaian;
 
         return response()->streamDownload(function () use ($data) {
@@ -136,17 +191,29 @@ class RekapNilai extends Page implements HasForms
     public function getViewData(): array
     {
         if (! $this->subject_id) {
-            return ['students' => [], 'aspects' => []];
+            return [
+                'rekapData' => [],
+                'aspects' => [],
+                'kktp' => 75,
+                'mapel' => null,
+                'konsep' => $this->konsep_ketuntasan,
+                'rangeTuntasMin' => $this->range_tuntas_min,
+                'rangeTuntasMax' => $this->range_tuntas_max,
+                'rangeTidakTuntasMin' => $this->range_tidak_tuntas_min,
+                'rangeTidakTuntasMax' => $this->range_tidak_tuntas_max,
+            ];
         }
 
         $mapel = Subject::find($this->subject_id);
         $kktp = $mapel->kktp ?? 75;
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
-        $aspects = Aspect::where('jenis_penilaian', $this->jenis_penilaian)
+        $aspects = Aspect::where('school_profile_id', $tenantId)
+            ->where('jenis_penilaian', $this->jenis_penilaian)
             ->with('indicators')
             ->get();
 
-        $students = Student::with(['scores.indicator.aspect'])->get();
+        $students = Student::where('school_profile_id', $tenantId)->with(['scores.indicator.aspect'])->get();
 
         $rekapData = [];
 
@@ -175,19 +242,16 @@ class RekapNilai extends Page implements HasForms
 
             $keputusan = $nilaiAkhir >= $kktp ? 'Pengayaan' : 'Remedial';
 
-            // --- LOGIKA KETUNTASAN BARU (RANGE VS TIDAK RANGE) ---
+            // --- LOGIKA KETUNTASAN (RANGE VS TIDAK RANGE) ---
             if ($this->konsep_ketuntasan === 'Range') {
-                if ($nilaiAkhir > 90) {
-                    $ketuntasan = 'Sangat Berkembang (SB)';
-                } elseif ($nilaiAkhir > 75) {
-                    $ketuntasan = 'Berkembang Sesuai Harapan (BSH)';
-                } elseif ($nilaiAkhir > 60) {
-                    $ketuntasan = 'Mulai Berkembang (MB)';
+                // Gunakan rentang nilai yang diinput user
+                if ($nilaiAkhir >= $this->range_tuntas_min && $nilaiAkhir <= $this->range_tuntas_max) {
+                    $ketuntasan = 'Tuntas';
                 } else {
-                    $ketuntasan = 'Belum Berkembang (BB)';
+                    $ketuntasan = 'Tidak Tuntas';
                 }
             } else {
-                $ketuntasan = $nilaiAkhir >= $kktp ? 'Tuntas' : 'Belum Tuntas';
+                $ketuntasan = $nilaiAkhir >= $kktp ? 'Tuntas' : 'Tidak Tuntas';
             }
 
             $rekapData[] = [
@@ -205,7 +269,11 @@ class RekapNilai extends Page implements HasForms
             'aspects' => $aspects,
             'kktp' => $kktp,
             'mapel' => $mapel,
-            'konsep' => $this->konsep_ketuntasan, // Kirim ke tampilan
+            'konsep' => $this->konsep_ketuntasan,
+            'rangeTuntasMin' => $this->range_tuntas_min,
+            'rangeTuntasMax' => $this->range_tuntas_max,
+            'rangeTidakTuntasMin' => $this->range_tidak_tuntas_min,
+            'rangeTidakTuntasMax' => $this->range_tidak_tuntas_max,
         ];
     }
 }

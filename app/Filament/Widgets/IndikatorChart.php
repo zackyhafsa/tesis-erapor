@@ -14,7 +14,8 @@ class IndikatorChart extends ChartWidget
     protected function getData(): array
     {
         // Menghitung rata-rata nilai untuk setiap indikator
-        $data = Score::select('indicator_id', DB::raw('avg(score_value) as rata_rata'))
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $data = Score::where('school_profile_id', $tenantId)->select('indicator_id', DB::raw('avg(score_value) as rata_rata'))
             ->groupBy('indicator_id')
             ->with('indicator')
             ->get();

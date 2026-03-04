@@ -17,7 +17,7 @@ class RaporController extends Controller
     public function cetakPdf(Request $request, $id)
     {
         $siswa = Student::findOrFail($id);
-        $sekolah = SchoolProfile::first();
+        $sekolah = $siswa->schoolProfile;
 
         // 1. TANGKAP PILIHAN DARI POP-UP FILAMENT
         $subjectId = $request->query('subject_id');
@@ -30,13 +30,14 @@ class RaporController extends Controller
         $tpIds = $request->query('tp_ids', []); // Tangkap array ID TP
 
         // Ambil data aslinya dari database
-        $cps = \App\Models\LearningOutcome::whereIn('id', is_array($cpIds) ? $cpIds : [])->get();
-        $tps = \App\Models\LearningObjective::whereIn('id', is_array($tpIds) ? $tpIds : [])->get();
+        $cps = \App\Models\LearningOutcome::where('school_profile_id', $sekolah->id)->whereIn('id', is_array($cpIds) ? $cpIds : [])->get();
+        $tps = \App\Models\LearningObjective::where('school_profile_id', $sekolah->id)->whereIn('id', is_array($tpIds) ? $tpIds : [])->get();
 
         // 2. AMBIL INDIKATOR HANYA YANG SESUAI JENIS PENILAIAN (PROYEK/KINERJA)
-        $semuaIndikator = Indicator::whereHas('aspect', function ($q) use ($jenisPenilaian) {
-            $q->where('jenis_penilaian', $jenisPenilaian);
-        })->with('aspect')->get();
+        $semuaIndikator = Indicator::where('school_profile_id', $sekolah->id)
+            ->whereHas('aspect', function ($q) use ($jenisPenilaian) {
+                $q->where('jenis_penilaian', $jenisPenilaian);
+            })->with('aspect')->get();
 
         // 3. AMBIL NILAI SISWA (Hanya untuk indikator yang tersaring di atas)
         $skorSiswa = Score::where('student_id', $id)

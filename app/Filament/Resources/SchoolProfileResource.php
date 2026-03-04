@@ -12,6 +12,10 @@ use Filament\Tables\Table;
 
 class SchoolProfileResource extends Resource
 {
+    // Atribut ini mencegah terjadinya error karena Filament akan mendeteksi SchoolProfile sebagai tenant, 
+    // bukan record milik tenant.
+    protected static bool $isScopedToTenant = false;
+
     protected static ?string $model = SchoolProfile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
@@ -25,6 +29,12 @@ class SchoolProfileResource extends Resource
     protected static ?string $navigationGroup = 'Data Sekolah';
 
     protected static ?int $navigationSort = 1;
+
+    // Karena ini adalah model Tenant, hanya superadmin yang bisa melihat daftar semua sekolah
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
 
     public static function form(Form $form): Form
     {
@@ -49,11 +59,9 @@ class SchoolProfileResource extends Resource
                         Forms\Components\TextInput::make('kode_pos'),
                     ]),
 
-                Forms\Components\Section::make('Informasi Kelas & Akademik')
+                Forms\Components\Section::make('Informasi Akademik')
                     ->columns(2)
                     ->schema([
-                        Forms\Components\TextInput::make('kelas')->label('Kelas (Contoh: I)'),
-                        Forms\Components\TextInput::make('fase')->label('Fase (Contoh: A)'),
                         Forms\Components\TextInput::make('semester')->label('Semester (Contoh: I (Satu))'),
                         Forms\Components\TextInput::make('tahun_pelajaran')->label('Tahun Pelajaran'),
                     ]),
@@ -75,13 +83,13 @@ class SchoolProfileResource extends Resource
                             ->label('Logo Kiri (Kabupaten/Dinas)')
                             ->image()
                             ->directory('logos') // Gambar akan disimpan di folder storage/app/public/logos
-                            ->maxSize(2048), // Maksimal 2MB
+                            ->maxSize(1024), // Maksimal 1MB
 
                         \Filament\Forms\Components\FileUpload::make('logo_kanan')
                             ->label('Logo Kanan (Sekolah)')
                             ->image()
                             ->directory('logos')
-                            ->maxSize(2048),
+                            ->maxSize(1024),
                     ])->columns(2),
             ]);
     }

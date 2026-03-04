@@ -10,20 +10,12 @@
         @if($konsep == 'Range')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
                 <div>
-                    <span class="inline-block w-20 font-bold text-green-600">91 - 100</span>
-                    : Sangat Berkembang (SB)
+                    <span class="inline-block w-28 font-bold text-green-600">{{ $rangeTuntasMin }} - {{ $rangeTuntasMax }}</span>
+                    : Tuntas
                 </div>
                 <div>
-                    <span class="inline-block w-20 font-bold text-green-500">76 - 90</span>
-                    : Berkembang Sesuai Harapan (BSH)
-                </div>
-                <div>
-                    <span class="inline-block w-20 font-bold text-yellow-600">61 - 75</span>
-                    : Mulai Berkembang (MB)
-                </div>
-                <div>
-                    <span class="inline-block w-20 font-bold text-red-600">&le; 60</span>
-                    : Belum Berkembang (BB)
+                    <span class="inline-block w-28 font-bold text-red-600">{{ $rangeTidakTuntasMin }} - {{ $rangeTidakTuntasMax }}</span>
+                    : Tidak Tuntas
                 </div>
             </div>
         @else
@@ -34,7 +26,7 @@
                 </div>
                 <div>
                     <span class="inline-block w-16 font-bold text-red-600">&lt; {{ $kktp ?? 75 }}</span>
-                    : Belum Tuntas / Remedial
+                    : Tidak Tuntas / Remedial
                 </div>
             </div>
             <div class="mt-2 text-xs italic text-gray-500">
@@ -83,8 +75,7 @@
                                                     {{ $data['nilaiAkhir'] }}</td>
                                                 <td
                                                     class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
-                                                    {{ in_array($data['ketuntasan'], ['Tuntas', 'Sangat Berkembang (SB)', 'Berkembang Sesuai Harapan (BSH)']) ? 'text-green-600' :
-                            (in_array($data['ketuntasan'], ['Mulai Berkembang (MB)']) ? 'text-yellow-600' : 'text-red-600') }}">
+                                                    {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600' : 'text-red-600' }}">
                                                     {{ $data['ketuntasan'] }}
                                                 </td>
                                             </tr>
@@ -135,8 +126,7 @@
                                                     {{ $data['nilaiAkhir'] }}</td>
                                                 <td
                                                     class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
-                                                    {{ in_array($data['ketuntasan'], ['Tuntas', 'Sangat Berkembang (SB)', 'Berkembang Sesuai Harapan (BSH)']) ? 'text-green-600' :
-                            (in_array($data['ketuntasan'], ['Mulai Berkembang (MB)']) ? 'text-yellow-600' : 'text-red-600') }}">
+                                                    {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600' : 'text-red-600' }}">
                                                     {{ $data['keputusan'] }}
                                                 </td>
                                             </tr>
@@ -152,7 +142,7 @@
                 @if($konsep == 'Tidak Range')
                     (KKTP: {{ $kktp ?? '-' }})
                 @else
-                    (Berdasarkan Rentang Predikat)
+                    (Rentang Nilai: Tuntas {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})
                 @endif
             </x-slot>
             <div class="overflow-x-auto">
@@ -163,7 +153,7 @@
                             <th class="border border-gray-300 dark:border-gray-700 p-2">Nama Siswa</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2">Nilai Akhir (0-100)</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2">
-                                @if($konsep == 'Tidak Range') Keterangan Ketuntasan @else Predikat / Kategori @endif
+                                Keterangan Ketuntasan
                             </th>
                         </tr>
                     </thead>
@@ -177,8 +167,7 @@
                                                     {{ $data['nilaiAkhir'] }}</td>
                                                 <td
                                                     class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
-                                                    {{ in_array($data['ketuntasan'], ['Tuntas', 'Sangat Berkembang (SB)', 'Berkembang Sesuai Harapan (BSH)']) ? 'text-green-600 bg-green-50' :
-                            (in_array($data['ketuntasan'], ['Mulai Berkembang (MB)']) ? 'text-yellow-600 bg-yellow-50' : 'text-red-600 bg-red-50') }}">
+                                                    {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50' }}">
                                                     {{ $data['ketuntasan'] }}
                                                 </td>
                                             </tr>

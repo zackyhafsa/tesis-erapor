@@ -17,14 +17,15 @@ class ProyekKinerjaChart extends ChartWidget
     protected function getData(): array
     {
         // Rata-rata Proyek per Aspek
-        $aspekProyek = Aspect::where('jenis_penilaian', 'Proyek')->with('indicators')->get();
-        $aspekKinerja = Aspect::where('jenis_penilaian', 'Kinerja')->with('indicators')->get();
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $aspekProyek = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', 'Proyek')->with('indicators')->get();
+        $aspekKinerja = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', 'Kinerja')->with('indicators')->get();
 
         $labelsProyek = [];
         $valuesProyek = [];
         foreach ($aspekProyek as $aspek) {
             $indIds = $aspek->indicators->pluck('id');
-            $avg = Score::whereIn('indicator_id', $indIds)->avg('score_value');
+            $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
             $labelsProyek[] = $aspek->nama_aspek;
             $valuesProyek[] = round(($avg ?? 0), 2);
         }
@@ -33,7 +34,7 @@ class ProyekKinerjaChart extends ChartWidget
         $valuesKinerja = [];
         foreach ($aspekKinerja as $aspek) {
             $indIds = $aspek->indicators->pluck('id');
-            $avg = Score::whereIn('indicator_id', $indIds)->avg('score_value');
+            $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
             $labelsKinerja[] = $aspek->nama_aspek;
             $valuesKinerja[] = round(($avg ?? 0), 2);
         }

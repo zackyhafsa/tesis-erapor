@@ -31,7 +31,7 @@ class ScoreResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'nama')
+                    ->relationship('student', 'nama', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
                     ->label('Pilih Siswa')
                     ->searchable()
                     ->preload()
@@ -39,7 +39,7 @@ class ScoreResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\Select::make('indicator_id')
-                    ->relationship('indicator', 'nama_indikator')
+                    ->relationship('indicator', 'nama_indikator', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
                     ->label('Pilih Indikator Penilaian')
                     ->searchable()
                     ->preload()

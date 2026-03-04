@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LearningOutcome extends Model
 {
@@ -11,5 +12,10 @@ class LearningOutcome extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function schoolProfile(): BelongsTo
+    {
+        return $this->belongsTo(SchoolProfile::class);
     }
 }

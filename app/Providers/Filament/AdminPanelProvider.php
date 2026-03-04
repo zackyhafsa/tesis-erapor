@@ -13,6 +13,8 @@ use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Models\SchoolProfile;
+use App\Filament\Pages\Tenancy\EditSchoolProfile;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
@@ -29,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->tenant(SchoolProfile::class, slugAttribute: 'id')
+            ->tenantProfile(EditSchoolProfile::class)
             ->brandName('SIPEKA')
             ->brandLogo(function () {
                 // Cek apakah url saat ini adalah halaman login

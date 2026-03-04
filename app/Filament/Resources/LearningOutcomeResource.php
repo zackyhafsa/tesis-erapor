@@ -33,9 +33,8 @@ class LearningOutcomeResource extends Resource
     {
         return $form
             ->schema([
-                // Dropdown yang otomatis mengambil data dari tabel Subject
                 Forms\Components\Select::make('subject_id')
-                    ->relationship('subject', 'nama_mapel')
+                    ->relationship('subject', 'nama_mapel', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
                     ->label('Pilih Mata Pelajaran')
                     ->searchable()
                     ->preload()

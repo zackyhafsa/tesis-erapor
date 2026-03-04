@@ -189,7 +189,7 @@
             <td width="40%" class="text-bold">{{ $siswa->nama }}</td>
             <td width="15%">Kelas / Fase</td>
             <td width="2%">:</td>
-            <td width="23%">{{ $sekolah->kelas ?? '-' }} / {{ $sekolah->fase ?? '-' }}</td>
+            <td width="23%">{{ $siswa->kelas ?? '-' }} / {{ $siswa->fase ?? '-' }}</td>
         </tr>
         <tr>
             <td>NIPD / NISN</td>

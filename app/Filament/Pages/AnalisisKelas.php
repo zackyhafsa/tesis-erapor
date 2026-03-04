@@ -34,7 +34,8 @@ class AnalisisKelas extends Page implements HasForms
 
     public function mount()
     {
-        $this->subject_id = Subject::first()->id ?? null;
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $this->subject_id = Subject::where('school_profile_id', $tenantId)->first()->id ?? null;
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
@@ -47,7 +48,7 @@ class AnalisisKelas extends Page implements HasForms
             ->schema([
                 Select::make('subject_id')
                     ->label('Pilih Mata Pelajaran')
-                    ->options(Subject::pluck('nama_mapel', 'id'))
+                    ->options(fn () => Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
 
@@ -70,9 +71,10 @@ class AnalisisKelas extends Page implements HasForms
 
         $mapel = Subject::find($this->subject_id);
         $kktp = $mapel->kktp ?? 75;
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
         // 1. Ambil Indikator Sesuai Filter
-        $aspects = Aspect::where('jenis_penilaian', $this->jenis_penilaian)->with('indicators')->get();
+        $aspects = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', $this->jenis_penilaian)->with('indicators')->get();
         $indicators = $aspects->flatMap->indicators;
         $indicatorIds = $indicators->pluck('id');
 
@@ -108,7 +110,7 @@ class AnalisisKelas extends Page implements HasForms
         }
 
         // 4. Hitung Distribusi Predikat Siswa + Pengayaan/Remedial
-        $students = Student::with(['scores' => function ($q) use ($indicatorIds) {
+        $students = Student::where('school_profile_id', $tenantId)->with(['scores' => function ($q) use ($indicatorIds) {
             $q->whereIn('indicator_id', $indicatorIds);
         }])->get();
 

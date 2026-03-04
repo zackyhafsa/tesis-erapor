@@ -16,7 +16,7 @@ class WelcomeWidget extends Widget
     protected function getViewData(): array
     {
         $user = auth()->user();
-        $sekolah = SchoolProfile::first();
+        $sekolah = \Filament\Facades\Filament::getTenant();
 
         $waktuWIB = now()->setTimezone('Asia/Jakarta')->locale('id');
         $hour = (int) $waktuWIB->format('H');
