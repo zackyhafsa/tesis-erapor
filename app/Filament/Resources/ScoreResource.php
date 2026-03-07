@@ -30,8 +30,27 @@ class ScoreResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('student_id', null) ?? $set('indicator_id', null)),
+
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'nama', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
+                    ->relationship('student', 'nama', function ($query, Forms\Get $get) {
+                        $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
+                        if ($get('kelas')) {
+                            $query->where('kelas', $get('kelas'));
+                        }
+                    })
                     ->label('Pilih Siswa')
                     ->searchable()
                     ->preload()
@@ -39,7 +58,12 @@ class ScoreResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\Select::make('indicator_id')
-                    ->relationship('indicator', 'nama_indikator', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
+                    ->relationship('indicator', 'nama_indikator', function ($query, Forms\Get $get) {
+                        $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
+                        if ($get('kelas')) {
+                            $query->where('kelas', $get('kelas'));
+                        }
+                    })
                     ->label('Pilih Indikator Penilaian')
                     ->searchable()
                     ->preload()
@@ -71,6 +95,12 @@ class ScoreResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+
                 Tables\Columns\TextColumn::make('student.nama')
                     ->label('Nama Siswa')
                     ->sortable()
@@ -83,18 +113,27 @@ class ScoreResource extends Resource
 
                 Tables\Columns\TextColumn::make('score_value')
                     ->label('Skor')
-                    ->badge() // Membuat skor tampil seperti label berwarna
+                    ->badge()
                     ->color(fn (int $state): string => match ($state) {
-                        1 => 'danger',   // Merah
-                        2 => 'warning',  // Kuning
-                        3 => 'info',     // Biru
-                        4 => 'success',  // Hijau
+                        1 => 'danger',
+                        2 => 'warning',
+                        3 => 'info',
+                        4 => 'success',
                         default => 'gray',
                     })
                     ->sortable(),
             ])
             ->filters([
-                // Kita bisa menambahkan filter nama siswa nanti di sini
+                Tables\Filters\SelectFilter::make('kelas')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

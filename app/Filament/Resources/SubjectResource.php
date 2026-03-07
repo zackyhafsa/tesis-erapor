@@ -30,6 +30,17 @@ class SubjectResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->required(),
                 Forms\Components\TextInput::make('nama_mapel')
                     ->label('Nama Mata Pelajaran')
                     ->required()
@@ -45,6 +56,11 @@ class SubjectResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
                 Tables\Columns\TextColumn::make('nama_mapel')
                     ->label('Mata Pelajaran')
                     ->searchable(),
@@ -54,7 +70,16 @@ class SubjectResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kelas')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

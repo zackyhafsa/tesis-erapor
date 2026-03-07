@@ -168,7 +168,7 @@ class StudentResource extends Resource
                     ->form([
                         \Filament\Forms\Components\Select::make('subject_id')
                             ->label('Pilih Mata Pelajaran')
-                            ->options(fn () => \App\Models\Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
+                            ->options(\App\Models\Subject::pluck('nama_mapel', 'id'))
                             ->searchable()
                             ->required(),
 
@@ -241,8 +241,7 @@ class StudentResource extends Resource
 
                     // 2. Membuat Form Dinamis (Memanggil seluruh indikator dari database)
                     ->form(function () {
-                        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-                        $indicators = \App\Models\Indicator::where('school_profile_id', $tenantId)->with('aspect')->get();
+                        $indicators = \App\Models\Indicator::with('aspect')->get();
                         $groupedIndicators = $indicators->groupBy('aspect_id');
 
                         $schema = [];
@@ -290,7 +289,6 @@ class StudentResource extends Resource
                                     ],
                                     [
                                         'score_value' => $value,
-                                        'school_profile_id' => \Filament\Facades\Filament::getTenant()?->id,
                                     ]
                                 );
                             }

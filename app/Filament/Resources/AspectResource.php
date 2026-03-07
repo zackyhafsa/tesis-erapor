@@ -30,6 +30,18 @@ class AspectResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->required(),
+
                 Forms\Components\Select::make('jenis_penilaian')
                     ->label('Jenis Penilaian')
                     ->options([
@@ -49,6 +61,12 @@ class AspectResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+
                 Tables\Columns\TextColumn::make('jenis_penilaian')
                     ->label('Jenis Penilaian')
                     ->sortable()

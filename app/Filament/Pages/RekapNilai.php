@@ -36,6 +36,8 @@ class RekapNilai extends Page implements HasForms
 
     public ?string $jenis_penilaian = 'Proyek';
 
+    public ?string $kelas_filter = null;
+
     public ?string $konsep_ketuntasan = 'Tidak Range';
 
     // Rentang nilai untuk konsep Range
@@ -54,6 +56,7 @@ class RekapNilai extends Page implements HasForms
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
+            'kelas_filter' => $this->kelas_filter,
             'konsep_ketuntasan' => $this->konsep_ketuntasan,
             'range_tuntas_min' => $this->range_tuntas_min,
             'range_tuntas_max' => $this->range_tuntas_max,
@@ -71,6 +74,20 @@ class RekapNilai extends Page implements HasForms
                     ->options(fn () => Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
+
+                Select::make('kelas_filter')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->placeholder('Semua Kelas')
+                    ->live()
+                    ->afterStateUpdated(fn ($state) => $this->kelas_filter = $state),
 
                 Select::make('jenis_penilaian')
                     ->label('Pilih Jenis Penilaian')
@@ -164,6 +181,7 @@ class RekapNilai extends Page implements HasForms
         $data = $this->getViewData();
         $data['sekolah'] = \Filament\Facades\Filament::getTenant();
         $data['jenis_penilaian'] = $this->jenis_penilaian;
+        $data['kelasFilter'] = $this->kelas_filter;
 
         $pdf = Pdf::loadView('cetak.rekap-pdf', $data)->setPaper('a4', 'landscape');
 
@@ -182,6 +200,7 @@ class RekapNilai extends Page implements HasForms
         $data = $this->getViewData();
         $data['sekolah'] = \Filament\Facades\Filament::getTenant();
         $data['jenis_penilaian'] = $this->jenis_penilaian;
+        $data['kelasFilter'] = $this->kelas_filter;
 
         return response()->streamDownload(function () use ($data) {
             echo view('cetak.rekap-excel', $data)->render();
@@ -210,10 +229,15 @@ class RekapNilai extends Page implements HasForms
 
         $aspects = Aspect::where('school_profile_id', $tenantId)
             ->where('jenis_penilaian', $this->jenis_penilaian)
+            ->when($this->kelas_filter, fn ($q) => $q->where('kelas', $this->kelas_filter))
             ->with('indicators')
             ->get();
 
-        $students = Student::where('school_profile_id', $tenantId)->with(['scores.indicator.aspect'])->get();
+        $studentsQuery = Student::where('school_profile_id', $tenantId);
+        if ($this->kelas_filter) {
+            $studentsQuery->where('kelas', $this->kelas_filter);
+        }
+        $students = $studentsQuery->with(['scores.indicator.aspect'])->get();
 
         $rekapData = [];
 

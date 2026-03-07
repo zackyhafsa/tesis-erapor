@@ -15,6 +15,8 @@
 <body>
 
     <h2 class="text-center">Data Format Penilaian (Indikator)</h2>
+    <p class="text-center">{{ strtoupper($sekolah->nama_sekolah ?? 'NAMA SEKOLAH') }}</p>
+    <p class="text-center">Semester: {{ $sekolah->semester ?? '-' }} | Tahun Pelajaran: {{ $sekolah->tahun_pelajaran ?? '-' }}</p>
 
     <table>
         <thead>

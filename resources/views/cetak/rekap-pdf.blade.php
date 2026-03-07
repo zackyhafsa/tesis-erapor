@@ -138,6 +138,7 @@
                 <h2>REKAPITULASI PENILAIAN {{ strtoupper($jenis_penilaian) }}</h2>
                 <h4>{{ strtoupper($sekolah->nama_sekolah ?? 'NAMA SEKOLAH BELUM DIISI') }}</h4>
                 <p>NPSN: {{ $sekolah->npsn ?? '-' }} | NSS: {{ $sekolah->nss ?? '-' }}</p>
+                <p>Kelas: {{ $kelasFilter ?? 'Semua' }} | Semester: {{ $sekolah->semester ?? '-' }} | TA: {{ $sekolah->tahun_pelajaran ?? '-' }}</p>
             </td>
 
             <td width="15%" class="text-center" style="vertical-align: middle;">

@@ -33,8 +33,27 @@ class LearningOutcomeResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('subject_id', null)),
+
                 Forms\Components\Select::make('subject_id')
-                    ->relationship('subject', 'nama_mapel', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
+                    ->relationship('subject', 'nama_mapel', function ($query, Forms\Get $get) {
+                        $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
+                        if ($get('kelas')) {
+                            $query->where('kelas', $get('kelas'));
+                        }
+                    })
                     ->label('Pilih Mata Pelajaran')
                     ->searchable()
                     ->preload()
@@ -44,7 +63,7 @@ class LearningOutcomeResource extends Resource
                 Forms\Components\Textarea::make('deskripsi')
                     ->label('Deskripsi Capaian Pembelajaran (CP)')
                     ->required()
-                    ->columnSpanFull(), // Agar kotaknya lebar penuh
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -52,6 +71,12 @@ class LearningOutcomeResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+
                 // Menampilkan nama mapel yang terhubung
                 Tables\Columns\TextColumn::make('subject.nama_mapel')
                     ->label('Mata Pelajaran')
@@ -60,11 +85,20 @@ class LearningOutcomeResource extends Resource
                     
                 Tables\Columns\TextColumn::make('deskripsi')
                     ->label('Deskripsi CP')
-                    ->limit(50) // Dibatasi 50 huruf agar tabel tidak terlalu panjang
+                    ->limit(50)
                     ->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kelas')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

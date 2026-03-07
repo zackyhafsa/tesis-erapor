@@ -614,7 +614,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 {{-- Left Image/Illustration --}}
-                <div class="relative" data-aos="fade-right" data-aos-duration="1000">
+                <div class="relative" data-aos="fade-up" data-aos-duration="1000">
                     <div class="bg-gradient-to-br from-primary-100 via-purple-100 to-pink-100 rounded-3xl p-8 md:p-12">
                         <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                             <div class="flex items-center gap-4 mb-6">
@@ -664,7 +664,7 @@
                 </div>
 
                 {{-- Right Content --}}
-                <div data-aos="fade-left" data-aos-duration="1000">
+                <div data-aos="fade-up" data-aos-duration="1000">
                     <div
                         class="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full text-sm font-semibold text-green-600 mb-4">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

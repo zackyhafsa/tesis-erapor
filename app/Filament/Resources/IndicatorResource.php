@@ -30,8 +30,27 @@ class IndicatorResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('aspect_id', null)),
+
                 Forms\Components\Select::make('aspect_id')
-                    ->relationship('aspect', 'nama_aspek', fn ($query) => $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id))
+                    ->relationship('aspect', 'nama_aspek', function ($query, Forms\Get $get) {
+                        $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
+                        if ($get('kelas')) {
+                            $query->where('kelas', $get('kelas'));
+                        }
+                    })
                     ->label('Pilih Aspek Penilaian')
                     ->searchable()
                     ->preload()
@@ -70,6 +89,12 @@ class IndicatorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+
                 // 1. Menampilkan Jenis Penilaian (Dari tabel relasi Aspek)
                 Tables\Columns\TextColumn::make('aspect.jenis_penilaian')
                     ->label('Jenis Penilaian')
@@ -91,43 +116,42 @@ class IndicatorResource extends Resource
                 // 4. MEMUNCULKAN KOLOM BARU: Deskripsi Kriteria
                 Tables\Columns\TextColumn::make('deskripsi_kriteria')
                     ->label('Deskripsi Kriteria')
-                    ->limit(40) // Dibatasi 40 huruf agar tabel tidak membludak
+                    ->limit(40)
                     ->searchable(),
             ])
 
             ->headerActions([
-                // 1. TOMBOL EXPORT KE EXCEL (Bawaan Excel - Biarkan karena udah rapi kalau di Excel)
-                \pxlrbt\FilamentExcel\Actions\Tables\ExportAction::make('eksport_excel')
+                // 1. TOMBOL EXPORT KE EXCEL (Kustom HTML dengan Keterangan di Atas)
+                Tables\Actions\Action::make('eksport_excel')
                     ->label('Eksport Data (Excel)')
                     ->color('success')
                     ->icon('heroicon-o-table-cells')
-                    ->exports([
-                        \pxlrbt\FilamentExcel\Exports\ExcelExport::make('excel')
-                            ->withFilename('Data_Indikator_'.date('Y-m-d'))
-                            ->withColumns([
-                                \pxlrbt\FilamentExcel\Columns\Column::make('aspect.jenis_penilaian')->heading('Jenis Penilaian'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('aspect.nama_aspek')->heading('Aspek Penilaian'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('nama_indikator')->heading('Indikator'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('deskripsi_kriteria')->heading('Deskripsi Kriteria'),
-                            ]),
-                    ]),
+                    ->action(function ($livewire) {
+                        $indikators = $livewire->getFilteredTableQuery()->with('aspect')->get();
+                        $sekolah = \Filament\Facades\Filament::getTenant();
+
+                        return response()->streamDownload(function () use ($indikators, $sekolah) {
+                            echo view('cetak.indikator-excel', [
+                                'data' => $indikators,
+                                'sekolah' => $sekolah,
+                            ])->render();
+                        }, 'Data_Indikator_'.date('Y-m-d').'.xls');
+                    }),
 
                 // 2. TOMBOL EXPORT KE PDF (KUSTOM HTML SUPER RAPI)
                 Tables\Actions\Action::make('eksport_pdf_kustom')
                     ->label('Eksport Data (PDF)')
                     ->color('danger')
                     ->icon('heroicon-o-document-text')
-                    // Membaca Livewire untuk mengambil data yang sedang di-filter di layar
                     ->action(function ($livewire) {
-                        // Ambil semua data indikator beserta aspeknya yang sedang di-filter
                         $indikators = $livewire->getFilteredTableQuery()->with('aspect')->get();
+                        $sekolah = \Filament\Facades\Filament::getTenant();
 
-                        // Load ke desain kertas HTML kita tadi
                         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('cetak.indikator', [
                             'data' => $indikators,
+                            'sekolah' => $sekolah,
                         ]);
 
-                        // Langsung download file PDF-nya
                         return response()->streamDownload(fn () => print ($pdf->output()), 'Data_Indikator_'.date('Y-m-d').'.pdf');
                     }),
 
@@ -139,6 +163,16 @@ class IndicatorResource extends Resource
             ])
 
             ->filters([
+                Tables\Filters\SelectFilter::make('kelas')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ]),
                 // FITUR FILTER: Tombol corong di kanan atas tabel
                 Tables\Filters\SelectFilter::make('jenis_penilaian')
                     ->label('Filter Jenis Penilaian')
@@ -172,8 +206,9 @@ class IndicatorResource extends Resource
                             // PILIHAN 1: EXCEL
                             \pxlrbt\FilamentExcel\Exports\ExcelExport::make('excel')
                                 ->label('Eksport ke Excel')
-                                ->withFilename('Format_Penilaian_'.date('Y-m-d')) // Nama file excel
+                                ->withFilename('Format_Penilaian_'.date('Y-m-d'))
                                 ->withColumns([
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('kelas')->heading('Kelas'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('aspect.jenis_penilaian')->heading('Jenis Penilaian'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('aspect.nama_aspek')->heading('Aspek Penilaian'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('nama_indikator')->heading('Indikator'),
@@ -187,9 +222,10 @@ class IndicatorResource extends Resource
                             // PILIHAN 2: PDF
                             \pxlrbt\FilamentExcel\Exports\ExcelExport::make('pdf')
                                 ->label('Eksport ke PDF')
-                                ->withFilename('Format_Penilaian_'.date('Y-m-d').'.pdf') // Tambahkan .pdf di sini
+                                ->withFilename('Format_Penilaian_'.date('Y-m-d').'.pdf')
                                 ->withWriterType(\Maatwebsite\Excel\Excel::DOMPDF)
                                 ->withColumns([
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('kelas')->heading('Kelas'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('aspect.jenis_penilaian')->heading('Jenis Penilaian'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('aspect.nama_aspek')->heading('Aspek Penilaian'),
                                     \pxlrbt\FilamentExcel\Columns\Column::make('nama_indikator')->heading('Indikator'),

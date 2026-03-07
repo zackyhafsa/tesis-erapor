@@ -8,7 +8,10 @@
         <th colspan="{{ count($aspects) + 5 }}" style="font-size: 14px; font-weight: bold; text-align: center;">{{ strtoupper($sekolah->nama_sekolah ?? 'NAMA SEKOLAH') }}</th>
     </tr>
     <tr>
-        <th colspan="{{ count($aspects) + 5 }}" style="text-align: center;">Mata Pelajaran: {{ $mapel->nama_mapel ?? '-' }} | KKTP: {{ $kktp ?? '-' }}</th>
+        <th colspan="{{ count($aspects) + 5 }}" style="text-align: center;">Mata Pelajaran: {{ $mapel->nama_mapel ?? '-' }} | KKTP: {{ $kktp ?? '-' }} | Kelas: {{ $kelasFilter ?? 'Semua' }}</th>
+    </tr>
+    <tr>
+        <th colspan="{{ count($aspects) + 5 }}" style="text-align: center;">Semester: {{ $sekolah->semester ?? '-' }} | Tahun Pelajaran: {{ $sekolah->tahun_pelajaran ?? '-' }}</th>
     </tr>
     <tr></tr> </table>
 
