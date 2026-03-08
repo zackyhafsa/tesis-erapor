@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile(\App\Filament\Pages\Auth\EditProfile::class)
             ->tenant(SchoolProfile::class, slugAttribute: 'id')
             ->tenantProfile(EditSchoolProfile::class)
             ->brandName('SIPEKA')
