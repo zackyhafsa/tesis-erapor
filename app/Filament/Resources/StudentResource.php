@@ -51,6 +51,9 @@ class StudentResource extends Resource
                                     ])
                                     ->searchable()
                                     ->required()
+                                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
+                                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                                    ->dehydrated()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, Forms\Set $set) {
                                         // Otomatis isi fase berdasarkan kelas
@@ -323,5 +326,17 @@ class StudentResource extends Resource
             'create' => Pages\CreateStudent::route('/create'),
             'edit' => Pages\EditStudent::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Scope hanya untuk role admin (guru)
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->where('kelas', auth()->user()->kelas);
+        }
+        
+        return $query;
     }
 }

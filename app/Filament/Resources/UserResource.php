@@ -83,6 +83,19 @@ class UserResource extends Resource
                             ->preload()
                             ->required(fn (Forms\Get $get) => $get('role') === 'admin')
                             ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin'),
+
+                        Forms\Components\Select::make('kelas')
+                            ->label('Kelas yang Diajar')
+                            ->options([
+                                '1A' => '1A', '1B' => '1B',
+                                '2A' => '2A', '2B' => '2B',
+                                '3A' => '3A', '3B' => '3B',
+                                '4A' => '4A', '4B' => '4B',
+                                '5A' => '5A', '5B' => '5B',
+                                '6A' => '6A', '6B' => '6B',
+                            ])
+                            ->required(fn (Forms\Get $get) => $get('role') === 'admin')
+                            ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin'),
                     ]),
             ]);
     }
@@ -116,6 +129,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('schoolProfile.nama_sekolah')
                     ->label('Sekolah')
                     ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('info')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')

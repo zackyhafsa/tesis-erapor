@@ -43,6 +43,9 @@ class ReflectionResource extends Resource
                         '5A' => '5A', '5B' => '5B',
                         '6A' => '6A', '6B' => '6B',
                     ])
+                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
+                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                    ->dehydrated()
                     ->required(),
 
                 Forms\Components\Select::make('jenis_penilaian')
@@ -131,5 +134,17 @@ class ReflectionResource extends Resource
             'create' => Pages\CreateReflection::route('/create'),
             'edit' => Pages\EditReflection::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Cuma munculin refleksi yang dibikin di kelas guru tersebut
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->where('kelas', auth()->user()->kelas);
+        }
+        
+        return $query;
     }
 }

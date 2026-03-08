@@ -34,10 +34,18 @@ class WelcomeWidget extends Widget
             $emoji = '🌙';
         }
 
+        $userRole = $user?->role;
+        $userKelas = $user?->kelas;
+        $userName = $user?->name ?? 'Guru';
+
+        if ($userRole === 'admin' && $userKelas) {
+            $userName .= " (Kelas {$userKelas})";
+        }
+
         return [
             'salam' => $salam,
             'emoji' => $emoji,
-            'userName' => $user?->name ?? 'Guru',
+            'userName' => $userName,
             'namaSekolah' => $sekolah?->nama_sekolah ?? '',
             'tahunPelajaran' => $sekolah?->tahun_pelajaran ?? '',
             'semester' => $sekolah?->semester ?? '',

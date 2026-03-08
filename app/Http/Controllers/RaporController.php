@@ -97,7 +97,9 @@ class RaporController extends Controller
         });
 
         $kategoriPendek = explode(' / ', $kategori)[0];
-        $refleksi = Reflection::where('kategori_predikat', 'LIKE', "%$kategoriPendek%")->first();
+        $refleksi = Reflection::where('kategori_predikat', 'LIKE', "%$kategoriPendek%")
+            ->where('kelas', $siswa->kelas)
+            ->first();
 
         $pdf = Pdf::loadView('cetak.rapor', [
             'siswa' => $siswa,

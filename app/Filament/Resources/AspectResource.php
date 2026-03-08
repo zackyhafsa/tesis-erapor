@@ -30,18 +30,6 @@ class AspectResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('kelas')
-                    ->label('Kelas')
-                    ->options([
-                        '1A' => '1A', '1B' => '1B',
-                        '2A' => '2A', '2B' => '2B',
-                        '3A' => '3A', '3B' => '3B',
-                        '4A' => '4A', '4B' => '4B',
-                        '5A' => '5A', '5B' => '5B',
-                        '6A' => '6A', '6B' => '6B',
-                    ])
-                    ->required(),
-
                 Forms\Components\Select::make('jenis_penilaian')
                     ->label('Jenis Penilaian')
                     ->options([
@@ -54,6 +42,20 @@ class AspectResource extends Resource
                     ->label('Nama Aspek (Contoh: Pemahaman Tugas)')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('kelas')
+                    ->label('Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
+                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                    ->dehydrated()
+                    ->required(),
             ]);
     }
 
@@ -61,12 +63,6 @@ class AspectResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kelas')
-                    ->label('Kelas')
-                    ->sortable()
-                    ->badge()
-                    ->color('info'),
-
                 Tables\Columns\TextColumn::make('jenis_penilaian')
                     ->label('Jenis Penilaian')
                     ->sortable()
@@ -76,17 +72,28 @@ class AspectResource extends Resource
                 Tables\Columns\TextColumn::make('nama_aspek')
                     ->label('Aspek Penilaian')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->headerActions([
-                // INI DIA TOMBOL IMPORT-NYA
-                Tables\Actions\ImportAction::make()
-                    ->importer(\App\Filament\Imports\AspectImporter::class)
-                    ->label('Import Aspek dari CSV')
-                    ->color('primary')
-                    ->icon('heroicon-o-arrow-up-tray'),
+                // Excel Import dipindah ke halaman ListAspects.php
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kelas')
+                    ->label('Filter Kelas')
+                    ->options([
+                        '1A' => '1A', '1B' => '1B',
+                        '2A' => '2A', '2B' => '2B',
+                        '3A' => '3A', '3B' => '3B',
+                        '4A' => '4A', '4B' => '4B',
+                        '5A' => '5A', '5B' => '5B',
+                        '6A' => '6A', '6B' => '6B',
+                    ])
+                    ->hidden(fn () => auth()->user()?->role === 'admin'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -113,5 +120,17 @@ class AspectResource extends Resource
             'create' => Pages\CreateAspect::route('/create'),
             'edit' => Pages\EditAspect::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Cuma munculin Aspek dari kelas guru yang login (admin)
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->where('kelas', auth()->user()->kelas);
+        }
+        
+        return $query;
     }
 }

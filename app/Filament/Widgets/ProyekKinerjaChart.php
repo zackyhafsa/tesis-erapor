@@ -18,14 +18,27 @@ class ProyekKinerjaChart extends ChartWidget
     {
         // Rata-rata Proyek per Aspek
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        $aspekProyek = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', 'Proyek')->with('indicators')->get();
-        $aspekKinerja = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', 'Kinerja')->with('indicators')->get();
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
+
+        $aspectQuery = Aspect::where('school_profile_id', $tenantId)->with('indicators');
+        $scoreQuery = Score::where('school_profile_id', $tenantId);
+
+        if ($userRole === 'admin' && $userKelas) {
+            $aspectQuery->where('kelas', $userKelas);
+            $scoreQuery->whereHas('student', function ($query) use ($userKelas) {
+                $query->where('kelas', $userKelas);
+            });
+        }
+
+        $aspekProyek = (clone $aspectQuery)->where('jenis_penilaian', 'Proyek')->get();
+        $aspekKinerja = (clone $aspectQuery)->where('jenis_penilaian', 'Kinerja')->get();
 
         $labelsProyek = [];
         $valuesProyek = [];
         foreach ($aspekProyek as $aspek) {
             $indIds = $aspek->indicators->pluck('id');
-            $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
+            $avg = $scoreQuery->clone()->whereIn('indicator_id', $indIds)->avg('score_value');
             $labelsProyek[] = $aspek->nama_aspek;
             $valuesProyek[] = round(($avg ?? 0), 2);
         }
@@ -34,7 +47,7 @@ class ProyekKinerjaChart extends ChartWidget
         $valuesKinerja = [];
         foreach ($aspekKinerja as $aspek) {
             $indIds = $aspek->indicators->pluck('id');
-            $avg = Score::where('school_profile_id', $tenantId)->whereIn('indicator_id', $indIds)->avg('score_value');
+            $avg = $scoreQuery->clone()->whereIn('indicator_id', $indIds)->avg('score_value');
             $labelsKinerja[] = $aspek->nama_aspek;
             $valuesKinerja[] = round(($avg ?? 0), 2);
         }

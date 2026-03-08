@@ -53,6 +53,12 @@ class RekapNilai extends Page implements HasForms
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
         $this->subject_id = Subject::where('school_profile_id', $tenantId)->first()->id ?? null;
+        
+        // Default kelas filter jika guru yang login
+        if (auth()->user()?->role === 'admin') {
+            $this->kelas_filter = auth()->user()?->kelas;
+        }
+        
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
@@ -86,6 +92,7 @@ class RekapNilai extends Page implements HasForms
                         '6A' => '6A', '6B' => '6B',
                     ])
                     ->placeholder('Semua Kelas')
+                    ->hidden(fn () => auth()->user()?->role === 'admin') // Sembunyikan untuk guru
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->kelas_filter = $state),
 
@@ -227,9 +234,14 @@ class RekapNilai extends Page implements HasForms
         $kktp = $mapel->kktp ?? 75;
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
+        // Kunci filter kelas jika user adalah admin (guru)
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $this->kelas_filter = auth()->user()->kelas;
+        }
+
         $aspects = Aspect::where('school_profile_id', $tenantId)
             ->where('jenis_penilaian', $this->jenis_penilaian)
-            ->when($this->kelas_filter, fn ($q) => $q->where('kelas', $this->kelas_filter))
+            // Aspek sekarang nggak dikunci per kelas lagi, jadi filter ini dihapus
             ->with('indicators')
             ->get();
 

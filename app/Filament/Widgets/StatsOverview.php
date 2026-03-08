@@ -14,18 +14,31 @@ class StatsOverview extends BaseWidget
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
+
+        $studentQuery = Student::where('school_profile_id', $tenantId);
+        $scoreQuery = Score::where('school_profile_id', $tenantId);
+
+        if ($userRole === 'admin' && $userKelas) {
+            $studentQuery->where('kelas', $userKelas);
+            $scoreQuery->whereHas('student', function ($query) use ($userKelas) {
+                $query->where('kelas', $userKelas);
+            });
+        }
+
         // 1. Menghitung total siswa
-        $totalSiswa = Student::where('school_profile_id', $tenantId)->count();
+        $totalSiswa = $studentQuery->count();
 
         // 2. Menghitung rata-rata nilai seluruh kelas (dari skor 1-4)
-        $rataRataKelas = Score::where('school_profile_id', $tenantId)->avg('score_value') ?? 0;
+        $rataRataKelas = $scoreQuery->clone()->avg('score_value') ?? 0;
         
         // Mengubah rata-rata menjadi skala 100 (opsional, agar mudah dibaca)
         // Karena nilai maksimal 4, maka (rata-rata / 4) * 100
         $rataRataSkala100 = ($rataRataKelas / 4) * 100;
 
         // 3. Menghitung total data nilai yang sudah masuk
-        $totalPenilaian = Score::where('school_profile_id', $tenantId)->count();
+        $totalPenilaian = $scoreQuery->clone()->count();
 
         return [
             Stat::make('Total Siswa', $totalSiswa)

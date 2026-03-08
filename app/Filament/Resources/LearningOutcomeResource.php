@@ -43,6 +43,9 @@ class LearningOutcomeResource extends Resource
                         '5A' => '5A', '5B' => '5B',
                         '6A' => '6A', '6B' => '6B',
                     ])
+                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
+                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                    ->dehydrated()
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('subject_id', null)),
@@ -50,7 +53,10 @@ class LearningOutcomeResource extends Resource
                 Forms\Components\Select::make('subject_id')
                     ->relationship('subject', 'nama_mapel', function ($query, Forms\Get $get) {
                         $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
-                        if ($get('kelas')) {
+                        
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $query->where('kelas', auth()->user()->kelas);
+                        } elseif ($get('kelas')) {
                             $query->where('kelas', $get('kelas'));
                         }
                     })
@@ -73,9 +79,10 @@ class LearningOutcomeResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('kelas')
                     ->label('Kelas')
-                    ->sortable()
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
 
                 // Menampilkan nama mapel yang terhubung
                 Tables\Columns\TextColumn::make('subject.nama_mapel')
@@ -98,7 +105,8 @@ class LearningOutcomeResource extends Resource
                         '4A' => '4A', '4B' => '4B',
                         '5A' => '5A', '5B' => '5B',
                         '6A' => '6A', '6B' => '6B',
-                    ]),
+                    ])
+                    ->hidden(fn () => auth()->user()?->role === 'admin'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -125,5 +133,17 @@ class LearningOutcomeResource extends Resource
             'create' => Pages\CreateLearningOutcome::route('/create'),
             'edit' => Pages\EditLearningOutcome::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Scope hanya untuk role admin (guru)
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->where('kelas', auth()->user()->kelas);
+        }
+        
+        return $query;
     }
 }

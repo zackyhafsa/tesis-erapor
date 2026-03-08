@@ -30,25 +30,13 @@ class ScoreResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('kelas')
-                    ->label('Kelas')
-                    ->options([
-                        '1A' => '1A', '1B' => '1B',
-                        '2A' => '2A', '2B' => '2B',
-                        '3A' => '3A', '3B' => '3B',
-                        '4A' => '4A', '4B' => '4B',
-                        '5A' => '5A', '5B' => '5B',
-                        '6A' => '6A', '6B' => '6B',
-                    ])
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set) => $set('student_id', null) ?? $set('indicator_id', null)),
-
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'nama', function ($query, Forms\Get $get) {
+                    ->relationship('student', 'nama', function ($query) {
                         $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
-                        if ($get('kelas')) {
-                            $query->where('kelas', $get('kelas'));
+                        
+                        // Filter agar guru cuma bisa lihat siswa di kelasnya sendiri
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $query->where('kelas', auth()->user()->kelas);
                         }
                     })
                     ->label('Pilih Siswa')
@@ -58,11 +46,8 @@ class ScoreResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\Select::make('indicator_id')
-                    ->relationship('indicator', 'nama_indikator', function ($query, Forms\Get $get) {
+                    ->relationship('indicator', 'nama_indikator', function ($query) {
                         $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
-                        if ($get('kelas')) {
-                            $query->where('kelas', $get('kelas'));
-                        }
                     })
                     ->label('Pilih Indikator Penilaian')
                     ->searchable()
@@ -95,12 +80,6 @@ class ScoreResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kelas')
-                    ->label('Kelas')
-                    ->sortable()
-                    ->badge()
-                    ->color('info'),
-
                 Tables\Columns\TextColumn::make('student.nama')
                     ->label('Nama Siswa')
                     ->sortable()
@@ -124,16 +103,7 @@ class ScoreResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('kelas')
-                    ->label('Filter Kelas')
-                    ->options([
-                        '1A' => '1A', '1B' => '1B',
-                        '2A' => '2A', '2B' => '2B',
-                        '3A' => '3A', '3B' => '3B',
-                        '4A' => '4A', '4B' => '4B',
-                        '5A' => '5A', '5B' => '5B',
-                        '6A' => '6A', '6B' => '6B',
-                    ]),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -160,5 +130,19 @@ class ScoreResource extends Resource
             'create' => Pages\CreateScore::route('/create'),
             'edit' => Pages\EditScore::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Cuma munculin nilai siswa yang kelasnya sama dengan kelas guru
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->whereHas('student', function ($q) {
+                $q->where('kelas', auth()->user()->kelas);
+            });
+        }
+        
+        return $query;
     }
 }

@@ -16,18 +16,32 @@ class ProgresInputWidget extends BaseWidget
     protected function getStats(): array
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
 
-        $totalSiswa = Student::where('school_profile_id', $tenantId)->count();
-        $totalIndikator = Indicator::where('school_profile_id', $tenantId)->count();
+        $studentQuery = Student::where('school_profile_id', $tenantId);
+        $indicatorQuery = Indicator::where('school_profile_id', $tenantId);
+        $scoreQuery = Score::where('school_profile_id', $tenantId);
+
+        if ($userRole === 'admin' && $userKelas) {
+            $studentQuery->where('kelas', $userKelas);
+            $indicatorQuery->where('kelas', $userKelas);
+            $scoreQuery->whereHas('student', function ($q) use ($userKelas) {
+                $q->where('kelas', $userKelas);
+            });
+        }
+
+        $totalSiswa = $studentQuery->count();
+        $totalIndikator = $indicatorQuery->clone()->count();
         $targetTotal = $totalSiswa * $totalIndikator;
 
-        $sudahDinilai = Score::where('school_profile_id', $tenantId)->count();
+        $sudahDinilai = $scoreQuery->count();
         $persentase = $targetTotal > 0 ? round(($sudahDinilai / $targetTotal) * 100, 1) : 0;
 
         // Siswa yang sudah dinilai LENGKAP (semua indikator terisi)
         $siswaLengkap = 0;
         if ($totalIndikator > 0) {
-            $siswaLengkap = Student::where('school_profile_id', $tenantId)
+            $siswaLengkap = $studentQuery->clone()
                 ->withCount('scores')
                 ->get()
                 ->filter(fn ($s) => $s->scores_count >= $totalIndikator)
@@ -36,11 +50,11 @@ class ProgresInputWidget extends BaseWidget
         $siswaBelum = $totalSiswa - $siswaLengkap;
 
         // Jumlah Indikator Proyek vs Kinerja
-        $indikatorProyek = Indicator::where('school_profile_id', $tenantId)
+        $indikatorProyek = $indicatorQuery->clone()
             ->whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Proyek'))
             ->count();
             
-        $indikatorKinerja = Indicator::where('school_profile_id', $tenantId)
+        $indikatorKinerja = $indicatorQuery->clone()
             ->whereHas('aspect', fn ($q) => $q->where('jenis_penilaian', 'Kinerja'))
             ->count();
 

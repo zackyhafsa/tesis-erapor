@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Imports;
+
+use App\Models\LearningOutcome;
+use App\Models\Subject;
+use Filament\Facades\Filament;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+
+class LearningOutcomesImport implements ToModel, WithHeadingRow, WithBatchInserts
+{
+    public function model(array $row)
+    {
+        if (empty($row['deskripsi_cp'])) {
+            return null;
+        }
+
+        $schoolProfileId = Filament::getTenant()->id;
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
+
+        $kelasImport = ($userRole === 'admin' && $userKelas) ? $userKelas : ($row['kelas'] ?? null);
+
+        // Cari mapel berdasarkan nama dan kelas (jika mapel punya kelas)
+        $subject = Subject::where('school_profile_id', $schoolProfileId)
+            ->where('nama_mapel', trim($row['nama_mata_pelajaran']))
+            ->when($kelasImport, function ($query) use ($kelasImport) {
+                $query->where('kelas', $kelasImport);
+            })
+            ->first();
+
+        // Jika mapel tidak ditemukan, buat baru
+        if (!$subject) {
+            $subject = new Subject();
+            $subject->school_profile_id = $schoolProfileId;
+            $subject->nama_mapel = trim($row['nama_mata_pelajaran'] ?? 'Mapel Baru');
+            $subject->kelas = $kelasImport;
+            $subject->kktp = 75; // Default KKTP
+            $subject->save();
+        }
+
+        $cp = new LearningOutcome();
+        $cp->school_profile_id = $schoolProfileId;
+        $cp->subject_id = $subject->id;
+        $cp->kelas = $kelasImport;
+        $cp->deskripsi = trim($row['deskripsi_cp']);
+
+        return $cp;
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+}

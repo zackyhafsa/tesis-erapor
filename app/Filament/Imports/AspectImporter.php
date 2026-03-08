@@ -20,12 +20,15 @@ class AspectImporter extends Importer
 
     public function resolveRecord(): ?Aspect
     {
-        // return Aspect::firstOrNew([
-        //     // Update existing records, matching them by `$this->data['column_name']`
-        //     'email' => $this->data['email'],
-        // ]);
+        $aspect = new Aspect();
+        $aspect->school_profile_id = $this->options['school_profile_id'] ?? null;
+        
+        $userKelas = $this->options['kelas'] ?? null;
+        if ($userKelas) {
+            $aspect->kelas = $userKelas;
+        }
 
-        return new Aspect();
+        return $aspect;
     }
 
     public static function getCompletedNotificationBody(Import $import): string

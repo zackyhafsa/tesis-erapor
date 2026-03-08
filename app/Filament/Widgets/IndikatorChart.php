@@ -15,10 +15,28 @@ class IndikatorChart extends ChartWidget
     {
         // Menghitung rata-rata nilai untuk setiap indikator
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        $data = Score::where('school_profile_id', $tenantId)->select('indicator_id', DB::raw('avg(score_value) as rata_rata'))
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
+
+        $query = Score::where('school_profile_id', $tenantId);
+
+        if ($userRole === 'admin' && $userKelas) {
+            $query->whereHas('student', function ($q) use ($userKelas) {
+                $q->where('kelas', $userKelas);
+            });
+        }
+
+        $data = $query->select('indicator_id', DB::raw('avg(score_value) as rata_rata'))
             ->groupBy('indicator_id')
-            ->with('indicator')
-            ->get();
+            ->with(['indicator' => function ($q) use ($userRole, $userKelas) {
+                if ($userRole === 'admin' && $userKelas) {
+                    $q->where('kelas', $userKelas);
+                }
+            }])
+            ->get()
+            ->filter(function ($item) {
+                return $item->indicator !== null;
+            });
 
         $labels = [];
         $values = [];

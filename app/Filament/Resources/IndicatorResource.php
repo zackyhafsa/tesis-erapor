@@ -40,6 +40,9 @@ class IndicatorResource extends Resource
                         '5A' => '5A', '5B' => '5B',
                         '6A' => '6A', '6B' => '6B',
                     ])
+                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
+                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                    ->dehydrated()
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('aspect_id', null)),
@@ -47,7 +50,11 @@ class IndicatorResource extends Resource
                 Forms\Components\Select::make('aspect_id')
                     ->relationship('aspect', 'nama_aspek', function ($query, Forms\Get $get) {
                         $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
-                        if ($get('kelas')) {
+                        
+                        // Kunci dengan kelas guru yang login jika guru, atau dengan pilihan dropdown jika admin utama
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $query->where('kelas', auth()->user()->kelas);
+                        } elseif ($get('kelas')) {
                             $query->where('kelas', $get('kelas'));
                         }
                     })
@@ -91,9 +98,10 @@ class IndicatorResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('kelas')
                     ->label('Kelas')
-                    ->sortable()
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
 
                 // 1. Menampilkan Jenis Penilaian (Dari tabel relasi Aspek)
                 Tables\Columns\TextColumn::make('aspect.jenis_penilaian')
@@ -154,12 +162,6 @@ class IndicatorResource extends Resource
 
                         return response()->streamDownload(fn () => print ($pdf->output()), 'Data_Indikator_'.date('Y-m-d').'.pdf');
                     }),
-
-                // Tables\Actions\ImportAction::make()
-                //     ->importer(\App\Filament\Imports\IndicatorImporter::class)
-                //     ->label('Import Indikator dari CSV')
-                //     ->color('primary')
-                //     ->icon('heroicon-o-arrow-up-tray'),
             ])
 
             ->filters([
@@ -172,7 +174,9 @@ class IndicatorResource extends Resource
                         '4A' => '4A', '4B' => '4B',
                         '5A' => '5A', '5B' => '5B',
                         '6A' => '6A', '6B' => '6B',
-                    ]),
+                    ])
+                    ->hidden(fn () => auth()->user()?->role === 'admin'),
+
                 // FITUR FILTER: Tombol corong di kanan atas tabel
                 Tables\Filters\SelectFilter::make('jenis_penilaian')
                     ->label('Filter Jenis Penilaian')
@@ -250,5 +254,17 @@ class IndicatorResource extends Resource
             'create' => Pages\CreateIndicator::route('/create'),
             'edit' => Pages\EditIndicator::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        // Scope hanya untuk role admin (guru)
+        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+            $query->where('kelas', auth()->user()->kelas);
+        }
+        
+        return $query;
     }
 }

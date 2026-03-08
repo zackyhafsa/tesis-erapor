@@ -103,14 +103,27 @@ class StudentImporter extends Importer
 
     public function resolveRecord(): ?Student
     {
+        $tenantId = $this->options['school_profile_id'] ?? null;
+        $userKelas = $this->options['kelas'] ?? null;
+
         // Jika NIPD ada, update data yang sudah ada; jika tidak, buat baru
         if (! empty($this->data['nipd'])) {
-            return Student::firstOrNew([
+            $student = Student::firstOrNew([
                 'nipd' => $this->data['nipd'],
+                'school_profile_id' => $tenantId,
             ]);
+        } else {
+            $student = new Student;
         }
 
-        return new Student;
+        $student->school_profile_id = $tenantId;
+
+        // Jika yang mengimport adalah guru (punya data kelas), paksa masuk ke kelas guru tersebut
+        if ($userKelas) {
+            $student->kelas = $userKelas;
+        }
+
+        return $student;
     }
 
     public static function getCompletedNotificationBody(Import $import): string

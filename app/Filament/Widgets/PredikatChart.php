@@ -16,7 +16,18 @@ class PredikatChart extends ChartWidget
     {
         // Menghitung rata-rata skor per siswa
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        $siswaScores = Score::where('school_profile_id', $tenantId)->select('student_id', DB::raw('avg(score_value) as rata_rata'))
+        $userRole = auth()->user()?->role;
+        $userKelas = auth()->user()?->kelas;
+
+        $query = Score::where('school_profile_id', $tenantId);
+
+        if ($userRole === 'admin' && $userKelas) {
+            $query->whereHas('student', function ($q) use ($userKelas) {
+                $q->where('kelas', $userKelas);
+            });
+        }
+
+        $siswaScores = $query->select('student_id', DB::raw('avg(score_value) as rata_rata'))
             ->groupBy('student_id')
             ->get();
 
