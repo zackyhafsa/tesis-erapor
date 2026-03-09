@@ -178,6 +178,8 @@
                         Kerja</a>
                     <a href="#tentang"
                         class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">Tentang</a>
+                    <a href="{{ url('/unduhan') }}"
+                        class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">Unduhan</a>
                     <a href="{{ url('/admin/login') }}"
                         class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-sm font-semibold shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -757,8 +759,7 @@
                         <span class="text-xl font-extrabold">SIPEKA</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                        Sistem Penilaian Proyek dan Kinerja — Solusi E-Rapor digital modern untuk pendidikan anak usia
-                        dini Indonesia.
+                        Solusi penilaian digital untuk Jenjang Pendidikan Dasar Indonesia.
                     </p>
                 </div>
 
@@ -813,13 +814,6 @@
             <div
                 class="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p class="text-sm text-gray-500">&copy; {{ date('Y') }} SIPEKA. Dikembangkan sebagai penelitian tesis.
-                </p>
-                <p class="text-sm text-gray-500">Dibangun dengan
-                    <svg class="inline w-4 h-4 text-red-500 mx-0.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                    </svg>
-                    menggunakan Laravel & Filament
                 </p>
             </div>
         </div>

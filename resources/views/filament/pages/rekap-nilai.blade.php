@@ -7,14 +7,16 @@
     <div class="mt-6 p-4 bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
         <h3 class="font-bold text-lg mb-3">Keterangan Penilaian:</h3>
 
-        @if($konsep == 'Range')
+        @if ($konsep == 'Range')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
                 <div>
-                    <span class="inline-block w-28 font-bold text-green-600">{{ $rangeTuntasMin }} - {{ $rangeTuntasMax }}</span>
+                    <span class="inline-block w-28 font-bold text-green-600">{{ $rangeTuntasMin }} -
+                        {{ $rangeTuntasMax }}</span>
                     : Tuntas
                 </div>
                 <div>
-                    <span class="inline-block w-28 font-bold text-red-600">{{ $rangeTidakTuntasMin }} - {{ $rangeTidakTuntasMax }}</span>
+                    <span class="inline-block w-28 font-bold text-red-600">{{ $rangeTidakTuntasMin }} -
+                        {{ $rangeTidakTuntasMax }}</span>
                     : Tidak Tuntas
                 </div>
             </div>
@@ -45,43 +47,51 @@
                         <tr>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">No</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Nama Siswa</th>
-                            <th class="border border-gray-300 dark:border-gray-700 p-2"
-                                colspan="{{ count($aspects) > 0 ? count($aspects) : 1 }}">Rata-rata Skor Aspek</th>
+                            @if (count($aspects) > 0)
+                                <th class="border border-gray-300 dark:border-gray-700 p-2"
+                                    colspan="{{ count($aspects) }}">Rata-rata Skor Aspek</th>
+                            @endif
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Total Skor</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Nilai Akhir</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Keputusan</th>
+                            <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Ketuntasan</th>
                         </tr>
                         <tr>
-                            @forelse($aspects as $aspect)
-                                <th class="border border-gray-300 dark:border-gray-700 p-2">{{ $aspect->nama_aspek }}</th>
-                            @empty
-                                <th class="border border-gray-300 dark:border-gray-700 p-2">Belum ada aspek</th>
-                            @endforelse
+                            @foreach ($aspects as $aspect)
+                                <th class="border border-gray-300 dark:border-gray-700 p-2">{{ $aspect->nama_aspek }}
+                                </th>
+                            @endforeach
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($rekapData as $index => $data)
-                                            <tr class="text-center">
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
-                                                    {{ $data['student']->nama }}</td>
-                                                @foreach($aspects as $aspect)
-                                                    <td class="border border-gray-300 dark:border-gray-700 p-2">
-                                                        {{ $data['aspectScores'][$aspect->id]['skor'] }}</td>
-                                                @endforeach
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold">
-                                                    {{ $data['totalSkor'] }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
-                                                    {{ $data['nilaiAkhir'] }}</td>
-                                                <td
-                                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
+                            <tr class="text-center">
+                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
+                                    {{ $data['student']->nama }}</td>
+                                @foreach ($aspects as $aspect)
+                                    <td class="border border-gray-300 dark:border-gray-700 p-2">
+                                        {{ $data['aspectScores'][$aspect->id]['skor'] }}</td>
+                                @endforeach
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold">
+                                    {{ $data['totalSkor'] }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
+                                    {{ $data['nilaiAkhir'] }}</td>
+                                <td
+                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
+                                                    {{ $data['keputusan'] === 'Pengayaan' ? 'text-green-600' : 'text-yellow-600' }}">
+                                    {{ $data['keputusan'] }}
+                                </td>
+                                <td
+                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
                                                     {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600' : 'text-red-600' }}">
-                                                    {{ $data['ketuntasan'] }}
-                                                </td>
-                                            </tr>
+                                    {{ $data['ketuntasan'] }}
+                                </td>
+                            </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ count($aspects) + 5 }}" class="text-center p-4">Silakan pilih mapel terlebih
+                                <td colspan="{{ count($aspects) + 6 }}" class="text-center p-4">Silakan pilih mapel
+                                    terlebih
                                     dahulu.</td>
                             </tr>
                         @endforelse
@@ -98,38 +108,47 @@
                         <tr>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">No</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Nama Siswa</th>
-                            <th class="border border-gray-300 dark:border-gray-700 p-2"
-                                colspan="{{ count($aspects) > 0 ? count($aspects) : 1 }}">Nilai Aspek (Skala 100)</th>
+                            @if (count($aspects) > 0)
+                                <th class="border border-gray-300 dark:border-gray-700 p-2"
+                                    colspan="{{ count($aspects) }}">Nilai Aspek (Skala 100)</th>
+                            @endif
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Total Skor</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Nilai Akhir</th>
                             <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Keputusan</th>
+                            <th class="border border-gray-300 dark:border-gray-700 p-2" rowspan="2">Ketuntasan</th>
                         </tr>
                         <tr>
-                            @foreach($aspects as $aspect)
-                                <th class="border border-gray-300 dark:border-gray-700 p-2">{{ $aspect->nama_aspek }}</th>
+                            @foreach ($aspects as $aspect)
+                                <th class="border border-gray-300 dark:border-gray-700 p-2">{{ $aspect->nama_aspek }}
+                                </th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($rekapData as $index => $data)
-                                            <tr class="text-center">
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
-                                                    {{ $data['student']->nama }}</td>
-                                                @foreach($aspects as $aspect)
-                                                    <td class="border border-gray-300 dark:border-gray-700 p-2">
-                                                        {{ $data['aspectScores'][$aspect->id]['puluhan'] }}</td>
-                                                @endforeach
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold">
-                                                    {{ $data['totalSkor'] }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
-                                                    {{ $data['nilaiAkhir'] }}</td>
-                                                <td
-                                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
+                        @foreach ($rekapData as $index => $data)
+                            <tr class="text-center">
+                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
+                                    {{ $data['student']->nama }}</td>
+                                @foreach ($aspects as $aspect)
+                                    <td class="border border-gray-300 dark:border-gray-700 p-2">
+                                        {{ $data['aspectScores'][$aspect->id]['puluhan'] }}</td>
+                                @endforeach
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold">
+                                    {{ $data['totalSkor'] }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
+                                    {{ $data['nilaiAkhir'] }}</td>
+                                <td
+                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
+                                                    {{ $data['keputusan'] === 'Pengayaan' ? 'text-green-600' : 'text-yellow-600' }}">
+                                    {{ $data['keputusan'] }}
+                                </td>
+                                <td
+                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
                                                     {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600' : 'text-red-600' }}">
-                                                    {{ $data['keputusan'] }}
-                                                </td>
-                                            </tr>
+                                    {{ $data['ketuntasan'] }}
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -139,10 +158,11 @@
         <x-filament::section class="mb-5">
             <x-slot name="heading">
                 3. Rekap Ketuntasan
-                @if($konsep == 'Tidak Range')
+                @if ($konsep == 'Tidak Range')
                     (KKTP: {{ $kktp ?? '-' }})
                 @else
-                    (Rentang Nilai: Tuntas {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})
+                    (Rentang Nilai: Tuntas {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas
+                    {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})
                 @endif
             </x-slot>
             <div class="overflow-x-auto">
@@ -158,19 +178,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($rekapData as $index => $data)
-                                            <tr class="text-center">
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
-                                                    {{ $data['student']->nama }}</td>
-                                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
-                                                    {{ $data['nilaiAkhir'] }}</td>
-                                                <td
-                                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
+                        @foreach ($rekapData as $index => $data)
+                            <tr class="text-center">
+                                <td class="border border-gray-300 dark:border-gray-700 p-2">{{ $index + 1 }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 text-left font-bold">
+                                    {{ $data['student']->nama }}</td>
+                                <td class="border border-gray-300 dark:border-gray-700 p-2 font-bold text-blue-600">
+                                    {{ $data['nilaiAkhir'] }}</td>
+                                <td
+                                    class="border border-gray-300 dark:border-gray-700 p-2 font-bold 
                                                     {{ $data['ketuntasan'] === 'Tuntas' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50' }}">
-                                                    {{ $data['ketuntasan'] }}
-                                                </td>
-                                            </tr>
+                                    {{ $data['ketuntasan'] }}
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
