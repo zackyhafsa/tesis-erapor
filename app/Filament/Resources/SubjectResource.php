@@ -35,14 +35,14 @@ class SubjectResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('kelas')
-                    ->label('Kelas')
+                    ->label('Kelas (Tingkat)')
                     ->options([
-                        '1A' => '1A', '1B' => '1B',
-                        '2A' => '2A', '2B' => '2B',
-                        '3A' => '3A', '3B' => '3B',
-                        '4A' => '4A', '4B' => '4B',
-                        '5A' => '5A', '5B' => '5B',
-                        '6A' => '6A', '6B' => '6B',
+                        '1' => 'Kelas 1',
+                        '2' => 'Kelas 2',
+                        '3' => 'Kelas 3',
+                        '4' => 'Kelas 4',
+                        '5' => 'Kelas 5',
+                        '6' => 'Kelas 6',
                     ])
                     ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
                     ->disabled(fn () => auth()->user()?->role === 'admin')

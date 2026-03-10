@@ -85,17 +85,62 @@ class UserResource extends Resource
                             ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin'),
 
                         Forms\Components\Select::make('kelas')
-                            ->label('Kelas yang Diajar')
+                            ->label('Kelas (Tingkat)')
                             ->options([
-                                '1A' => '1A', '1B' => '1B',
-                                '2A' => '2A', '2B' => '2B',
-                                '3A' => '3A', '3B' => '3B',
-                                '4A' => '4A', '4B' => '4B',
-                                '5A' => '5A', '5B' => '5B',
-                                '6A' => '6A', '6B' => '6B',
+                                '1' => 'Kelas 1',
+                                '2' => 'Kelas 2',
+                                '3' => 'Kelas 3',
+                                '4' => 'Kelas 4',
+                                '5' => 'Kelas 5',
+                                '6' => 'Kelas 6',
                             ])
                             ->required(fn (Forms\Get $get) => $get('role') === 'admin')
+                            ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                if ($state) {
+                                    $angkaKelas = (int) $state;
+                                    
+                                    $fase = match (true) {
+                                        $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                        $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                        $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                        default => null,
+                                    };
+                                    
+                                    if ($fase) {
+                                        $set('fase', $fase);
+                                    }
+                                }
+                            }),
+
+                        Forms\Components\TextInput::make('nama_kelas')
+                            ->label('Nama Kelas Lengkap / Rombel (Contoh: 1 Khusus)')
+                            ->required(fn (Forms\Get $get) => $get('role') === 'admin')
                             ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin'),
+
+                        Forms\Components\Select::make('fase')
+                            ->label('Fase')
+                            ->options([
+                                'A' => 'Fase A (Kelas 1-2)',
+                                'B' => 'Fase B (Kelas 3-4)',
+                                'C' => 'Fase C (Kelas 5-6)',
+                            ])
+                            ->required(fn (Forms\Get $get) => $get('role') === 'admin')
+                            ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin')
+                            ->default(function (Forms\Get $get) {
+                                $kelas = $get('kelas');
+                                if ($kelas) {
+                                    $angkaKelas = (int) $kelas;
+                                    return match (true) {
+                                        $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                        $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                        $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                        default => null,
+                                    };
+                                }
+                                return null;
+                            }),
                     ]),
             ]);
     }

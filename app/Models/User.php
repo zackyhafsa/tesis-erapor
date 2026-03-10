@@ -30,6 +30,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'role',
         'school_profile_id',
         'kelas',
+        'nama_kelas',
+        'fase',
     ];
 
     /**

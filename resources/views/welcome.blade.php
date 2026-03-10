@@ -15,8 +15,30 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
-                        accent: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75' },
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+                        accent: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            200: '#f5d0fe',
+                            300: '#f0abfc',
+                            400: '#e879f9',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21caf',
+                            800: '#86198f',
+                            900: '#701a75'
+                        },
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -213,6 +235,8 @@
                         Kerja</a>
                     <a href="#tentang"
                         class="px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors">Tentang</a>
+                    <a href="{{ url('/unduhan') }}"
+                        class="px-4 py-2.5 text-sm font-bold text-primary-600 bg-primary-50 rounded-lg transition-colors">Unduhan</a>
                     <a href="{{ url('/admin/login') }}"
                         class="mx-4 mt-2 text-center px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-sm font-semibold shadow-lg">Masuk</a>
                 </div>
@@ -286,7 +310,8 @@
                                 <div class="flex-1 h-6 bg-gray-100 rounded-full"></div>
                             </div>
                             <div class="flex items-center gap-3 mb-3">
-                                <img src="{{ asset('images/sipeka-logo.png') }}" alt="" class="w-8 h-8 rounded-lg">
+                                <img src="{{ asset('images/sipeka-logo.png') }}" alt=""
+                                    class="w-8 h-8 rounded-lg">
                                 <div>
                                     <div class="text-sm font-bold text-gray-800">Dashboard SIPEKA</div>
                                     <div class="text-xs text-gray-400">Panel Guru</div>
@@ -386,7 +411,8 @@
                 </div>
                 <div class="stat-card rounded-2xl p-5 md:p-6 text-center border border-gray-100 shadow-sm">
                     <div class="w-12 h-12 mx-auto mb-3 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                             </path>
@@ -397,7 +423,8 @@
                 </div>
                 <div class="stat-card rounded-2xl p-5 md:p-6 text-center border border-gray-100 shadow-sm">
                     <div class="w-12 h-12 mx-auto mb-3 bg-green-100 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                             </path>
@@ -408,7 +435,8 @@
                 </div>
                 <div class="stat-card rounded-2xl p-5 md:p-6 text-center border border-gray-100 shadow-sm">
                     <div class="w-12 h-12 mx-auto mb-3 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
                             </path>
@@ -578,7 +606,8 @@
                         class="step-number w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         2</div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Input Data Siswa</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Daftarkan data siswa secara manual atau import dari
+                    <p class="text-sm text-gray-600 leading-relaxed">Daftarkan data siswa secara manual atau import
+                        dari
                         file Excel dengan cepat.</p>
                     <div
                         class="hidden lg:block absolute top-8 left-[calc(50%+40px)] w-[calc(100%-80px)] h-0.5 bg-gradient-to-r from-purple-300 to-pink-300">
@@ -637,8 +666,8 @@
                                     <span class="text-sm text-gray-700">Penilaian Berbasis Proyek</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
-                                    <svg class="w-5 h-5 text-purple-600 shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-purple-600 shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
@@ -653,8 +682,8 @@
                                     <span class="text-sm text-gray-700">Analisis Otomatis & Komprehensif</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 bg-orange-50 rounded-xl">
-                                    <svg class="w-5 h-5 text-orange-600 shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-orange-600 shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
@@ -686,7 +715,8 @@
                         </p>
                         <p>
                             Sistem ini menerapkan pendekatan penilaian berbasis <strong
-                                class="text-gray-800">Proyek</strong> dan <strong class="text-gray-800">Kinerja</strong>
+                                class="text-gray-800">Proyek</strong> dan <strong
+                                class="text-gray-800">Kinerja</strong>
                             yang selaras dengan Kurikulum Merdeka, dengan dukungan analisis data yang komprehensif untuk
                             memahami perkembangan setiap siswa.
                         </p>
@@ -739,9 +769,10 @@
             <a href="{{ url('/admin/login') }}"
                 class="inline-flex items-center gap-3 px-10 py-4 bg-white text-primary-700 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 group">
                 Masuk Sekarang
-                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3">
+                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3">
                     </path>
                 </svg>
             </a>
@@ -755,7 +786,8 @@
                 {{-- Brand --}}
                 <div class="md:col-span-1">
                     <div class="flex items-center gap-3 mb-4">
-                        <img src="{{ asset('images/sipeka-logo.png') }}" alt="SIPEKA" class="h-10 w-10 rounded-xl">
+                        <img src="{{ asset('images/sipeka-logo.png') }}" alt="SIPEKA"
+                            class="h-10 w-10 rounded-xl">
                         <span class="text-xl font-extrabold">SIPEKA</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-4">
@@ -769,9 +801,11 @@
                     <ul class="space-y-3">
                         <li><a href="#beranda"
                                 class="text-sm text-gray-300 hover:text-white transition-colors">Beranda</a></li>
-                        <li><a href="#fitur" class="text-sm text-gray-300 hover:text-white transition-colors">Fitur</a>
+                        <li><a href="#fitur"
+                                class="text-sm text-gray-300 hover:text-white transition-colors">Fitur</a>
                         </li>
-                        <li><a href="#cara-kerja" class="text-sm text-gray-300 hover:text-white transition-colors">Cara
+                        <li><a href="#cara-kerja"
+                                class="text-sm text-gray-300 hover:text-white transition-colors">Cara
                                 Kerja</a></li>
                         <li><a href="#tentang"
                                 class="text-sm text-gray-300 hover:text-white transition-colors">Tentang</a></li>
@@ -783,7 +817,8 @@
                     <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Informasi</h4>
                     <ul class="space-y-3">
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                 </path>
@@ -791,7 +826,8 @@
                             Penelitian Tesis
                         </li>
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
                                 </path>
@@ -799,7 +835,8 @@
                             Kurikulum Merdeka
                         </li>
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                                 </path>
@@ -813,7 +850,8 @@
             {{-- Divider --}}
             <div
                 class="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-sm text-gray-500">&copy; {{ date('Y') }} SIPEKA. Dikembangkan sebagai penelitian tesis.
+                <p class="text-sm text-gray-500">&copy; {{ date('Y') }} SIPEKA. Dikembangkan sebagai penelitian
+                    tesis.
                 </p>
             </div>
         </div>
@@ -884,7 +922,9 @@
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.3 });
+        }, {
+            threshold: 0.3
+        });
 
         const statsSection = document.querySelector('.counter');
         if (statsSection) {

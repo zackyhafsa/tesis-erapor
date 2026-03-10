@@ -410,11 +410,10 @@
                         <div class="pt-4 text-center">
                             <button @click="expanded = !expanded"
                                 class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-full text-sm font-semibold transition-colors w-full sm:w-auto">
-                                <span
-                                    x-text="expanded ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua Template (6)'"></span>
+                                <span x-text="expanded ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua Template (6)'"></span>
                                 <svg x-cloak :class="{ 'rotate-180': expanded }"
-                                    class="w-4 h-4 transition-transform duration-300" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7"></path>
                                 </svg>
@@ -504,8 +503,7 @@
                                         RESMI</span>
                                 </div>
                             </div>
-                            <a href="https://kurikulum.kemendikdasmen.go.id/" target="_blank"
-                                rel="noopener noreferrer"
+                            <a href="https://kurikulum.kemendikdasmen.go.id/" target="_blank" rel="noopener noreferrer"
                                 class="relative z-10 px-5 py-2.5 bg-white border border-primary-200 text-sm font-semibold text-primary-700 rounded-xl hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all shadow-sm flex items-center gap-2 text-center group">
                                 Kunjungi Link
                                 <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"
@@ -529,8 +527,7 @@
                 {{-- Brand --}}
                 <div class="md:col-span-1">
                     <div class="flex items-center gap-3 mb-4">
-                        <img src="{{ asset('images/sipeka-logo.png') }}" alt="SIPEKA"
-                            class="h-10 w-10 rounded-xl">
+                        <img src="{{ asset('images/sipeka-logo.png') }}" alt="SIPEKA" class="h-10 w-10 rounded-xl">
                         <span class="text-xl font-extrabold">SIPEKA</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-4">
@@ -560,8 +557,7 @@
                     <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Informasi</h4>
                     <ul class="space-y-3">
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                 </path>
@@ -569,8 +565,7 @@
                             Penelitian Tesis
                         </li>
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
                                 </path>
@@ -578,8 +573,7 @@
                             Kurikulum Merdeka
                         </li>
                         <li class="flex items-center gap-2 text-sm text-gray-300">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                                 </path>

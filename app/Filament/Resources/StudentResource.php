@@ -40,33 +40,41 @@ class StudentResource extends Resource
                                 Forms\Components\TextInput::make('nipd')->label('NIPD / NISN'),
                                 Forms\Components\TextInput::make('nama')->label('Nama Lengkap')->required(),
                                 Forms\Components\Select::make('kelas')
-                                    ->label('Kelas')
+                                    ->label('Kelas (Tingkat)')
                                     ->options([
-                                        '1A' => '1A', '1B' => '1B',
-                                        '2A' => '2A', '2B' => '2B',
-                                        '3A' => '3A', '3B' => '3B',
-                                        '4A' => '4A', '4B' => '4B',
-                                        '5A' => '5A', '5B' => '5B',
-                                        '6A' => '6A', '6B' => '6B',
+                                        '1' => 'Kelas 1',
+                                        '2' => 'Kelas 2',
+                                        '3' => 'Kelas 3',
+                                        '4' => 'Kelas 4',
+                                        '5' => 'Kelas 5',
+                                        '6' => 'Kelas 6',
                                     ])
-                                    ->searchable()
                                     ->required()
                                     ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
                                     ->disabled(fn () => auth()->user()?->role === 'admin')
                                     ->dehydrated()
-                                    ->reactive()
+                                    ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set) {
                                         // Otomatis isi fase berdasarkan kelas
                                         if ($state) {
-                                            $angkaKelas = (int) substr($state, 0, 1);
+                                            $angkaKelas = (int) $state;
+                                            
                                             $fase = match (true) {
-                                                $angkaKelas <= 2 => 'A',
-                                                $angkaKelas <= 4 => 'B',
-                                                default => 'C',
+                                                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                                default => null,
                                             };
-                                            $set('fase', $fase);
+                                            
+                                            if ($fase) {
+                                                $set('fase', $fase);
+                                            }
                                         }
                                     }),
+                                    
+                                Forms\Components\TextInput::make('nama_kelas')
+                                    ->label('Nama Kelas / Rombel')
+                                    ->required(),
                                 Forms\Components\Select::make('fase')
                                     ->label('Fase')
                                     ->options([
@@ -75,7 +83,20 @@ class StudentResource extends Resource
                                         'C' => 'Fase C (Kelas 5-6)',
                                     ])
                                     ->required()
-                                    ->disabled()
+                                    ->default(function () {
+                                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                                            $kelas = auth()->user()->kelas;
+                                            $angkaKelas = (int) $kelas;
+                                            return match (true) {
+                                                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                                default => null,
+                                            };
+                                        }
+                                        return null;
+                                    })
+                                    ->disabled(fn () => auth()->user()?->role === 'admin')
                                     ->dehydrated(),
                                 Forms\Components\Select::make('jenis_kelamin')->label('Jenis Kelamin')->options(['L' => 'Laki-laki', 'P' => 'Perempuan']),
                                 Forms\Components\TextInput::make('agama')->label('Agama'),
@@ -134,6 +155,12 @@ class StudentResource extends Resource
                 // Menampilkan kolom Kelas
                 Tables\Columns\TextColumn::make('kelas')
                     ->label('Kelas')
+                    ->sortable()
+                    ->searchable(),
+
+                // Menampilkan kolom Nama Kelas
+                Tables\Columns\TextColumn::make('nama_kelas')
+                    ->label('Rombel')
                     ->sortable()
                     ->searchable(),
 
@@ -247,7 +274,18 @@ class StudentResource extends Resource
                         $indicators = \App\Models\Indicator::with('aspect')->get();
                         $groupedIndicators = $indicators->groupBy('aspect_id');
 
-                        $schema = [];
+                        $schema = [
+                            \Filament\Forms\Components\Select::make('filter_jenis_penilaian')
+                                ->label('Tampilkan Berdasarkan Jenis Penilaian')
+                                ->options([
+                                    'Semua' => 'Tampilkan Semua',
+                                    'Kinerja' => 'Hanya Kinerja',
+                                    'Proyek' => 'Hanya Proyek',
+                                ])
+                                ->live()
+                                ->default('Semua')
+                                ->columnSpanFull(),
+                        ];
 
                         foreach ($groupedIndicators as $aspectId => $inds) {
                             $aspectName = $inds->first()->aspect->nama_aspek ?? 'Tanpa Aspek';
@@ -272,6 +310,10 @@ class StudentResource extends Resource
                             // Kelompokkan dalam kotak (Section) berdasarkan Aspek biar rapi
                             $schema[] = \Filament\Forms\Components\Section::make($aspectName.' ('.$jenisPenilaian.')')
                                 ->schema($fields)
+                                ->visible(fn (\Filament\Forms\Get $get) => 
+                                    $get('filter_jenis_penilaian') === 'Semua' || 
+                                    $get('filter_jenis_penilaian') === $jenisPenilaian
+                                )
                                 ->collapsed(); // Kotaknya bisa di-klik untuk buka-tutup
                         }
 
