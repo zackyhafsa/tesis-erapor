@@ -34,17 +34,46 @@ class RaporController extends Controller
         $tps = \App\Models\LearningObjective::where('school_profile_id', $sekolah->id)->whereIn('id', is_array($tpIds) ? $tpIds : [])->get();
 
         // 2. AMBIL INDIKATOR HANYA YANG SESUAI JENIS PENILAIAN (PROYEK/KINERJA)
+        $aspectIds = $request->query('aspect_ids', []); // Tangkap array ID Aspek
+
         $semuaIndikator = Indicator::where('school_profile_id', $sekolah->id)
-            ->whereHas('aspect', function ($q) use ($jenisPenilaian) {
+            ->whereHas('aspect', function ($q) use ($jenisPenilaian, $aspectIds, $siswa) {
                 $q->where('jenis_penilaian', $jenisPenilaian);
+
+                // Filter berdasarkan kelas siswa untuk menghindari duplikasi
+                if ($siswa->kelas) {
+                    $q->where('kelas', $siswa->kelas);
+                }
+
+                // Jika ada aspek yang dipilih, filter berdasarkan aspek tersebut
+                if (is_array($aspectIds) && count($aspectIds) > 0) {
+                    $q->whereIn('id', $aspectIds);
+                }
             })->with('aspect')->get();
 
-        // 3. AMBIL NILAI SISWA (Hanya untuk indikator yang tersaring di atas)
-        $skorSiswa = Score::where('student_id', $id)
-            ->whereIn('indicator_id', $semuaIndikator->pluck('id')) // Filter skor
-            ->with('indicator')
-            ->get()
-            ->keyBy('indicator_id');
+        // 3. AMBIL NILAI SISWA (filter by subject + CP/TP jika dipilih)
+        $skorQuery = Score::where('student_id', $id)
+            ->where('subject_id', $mapel->id)
+            ->whereIn('indicator_id', $semuaIndikator->pluck('id'));
+
+        // Filter skor berdasarkan CP/TP yang dipilih di cetak rapor
+        if (is_array($cpIds) && count($cpIds) > 0) {
+            $skorQuery->where(function ($q) use ($cpIds) {
+                foreach ($cpIds as $cpId) {
+                    $q->orWhereJsonContains('cp_ids', (string) $cpId);
+                }
+            });
+        }
+
+        if (is_array($tpIds) && count($tpIds) > 0) {
+            $skorQuery->where(function ($q) use ($tpIds) {
+                foreach ($tpIds as $tpId) {
+                    $q->orWhereJsonContains('tp_ids', (string) $tpId);
+                }
+            });
+        }
+
+        $skorSiswa = $skorQuery->with('indicator')->get()->keyBy('indicator_id');
 
         // 4. GABUNGKAN (Sama seperti sebelumnya)
         $nilaiSiswa = $semuaIndikator->map(function ($indikator) use ($skorSiswa) {

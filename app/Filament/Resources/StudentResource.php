@@ -16,11 +16,11 @@ class StudentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Data Siswa';
+    protected static ?string $navigationLabel = 'Data Siswa dan Penilaian';
 
     protected static ?string $modelLabel = 'Siswa';
 
-    protected static ?string $pluralModelLabel = 'Data Siswa';
+    protected static ?string $pluralModelLabel = 'Data Siswa dan Penilaian';
 
     protected static ?string $navigationGroup = 'Data Sekolah';
 
@@ -58,23 +58,26 @@ class StudentResource extends Resource
                                         // Otomatis isi fase berdasarkan kelas
                                         if ($state) {
                                             $angkaKelas = (int) $state;
-                                            
+
                                             $fase = match (true) {
                                                 $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                                                 $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
                                                 $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
                                                 default => null,
                                             };
-                                            
+
                                             if ($fase) {
                                                 $set('fase', $fase);
                                             }
                                         }
                                     }),
-                                    
+
                                 Forms\Components\TextInput::make('nama_kelas')
                                     ->label('Nama Kelas / Rombel')
-                                    ->required(),
+                                    ->required()
+                                    ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->nama_kelas : null)
+                                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                                    ->dehydrated(),
                                 Forms\Components\Select::make('fase')
                                     ->label('Fase')
                                     ->options([
@@ -87,6 +90,7 @@ class StudentResource extends Resource
                                         if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
                                             $kelas = auth()->user()->kelas;
                                             $angkaKelas = (int) $kelas;
+
                                             return match (true) {
                                                 $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                                                 $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
@@ -94,6 +98,7 @@ class StudentResource extends Resource
                                                 default => null,
                                             };
                                         }
+
                                         return null;
                                     })
                                     ->disabled(fn () => auth()->user()?->role === 'admin')
@@ -190,17 +195,52 @@ class StudentResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
 
-                // TOMBOL CETAK KITA UBAH JADI POP-UP FORM
+                // TOMBOL INPUT NILAI - Link ke halaman Input Nilai dengan siswa terpilih
+                Tables\Actions\Action::make('input_nilai')
+                    ->label('Input Nilai')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('warning')
+                    ->url(fn ($record) => \App\Filament\Resources\ScoreResource::getUrl('input-nilai', ['student_id' => $record->id])),
+
+                // TOMBOL CETAK RAPOR - Buka di tab baru
                 Tables\Actions\Action::make('cetak_rapor')
                     ->label('Cetak Rapor')
                     ->icon('heroicon-o-printer')
                     ->color('success')
+                    ->fillForm(function () {
+                        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                        $config = \App\Models\PenilaianConfig::where('school_profile_id', $tenantId)
+                            ->where('user_id', auth()->id())
+                            ->first();
+
+                        if (! $config) {
+                            return [];
+                        }
+
+                        return [
+                            'subject_id' => $config->subject_id ? (string) $config->subject_id : null,
+                            'jenis_penilaian' => $config->jenis_penilaian,
+                            'cp_ids' => $config->cp_ids ?? [],
+                            'tp_ids' => $config->tp_ids ?? [],
+                            'aspect_ids' => $config->aspect_ids ?? [],
+                        ];
+                    })
                     ->form([
                         \Filament\Forms\Components\Select::make('subject_id')
                             ->label('Pilih Mata Pelajaran')
-                            ->options(\App\Models\Subject::pluck('nama_mapel', 'id'))
+                            ->options(function () {
+                                $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                                $query = \App\Models\Subject::where('school_profile_id', $tenantId);
+
+                                if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                                    $query->where('kelas', auth()->user()->kelas);
+                                }
+
+                                return $query->pluck('nama_mapel', 'id');
+                            })
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->live(),
 
                         \Filament\Forms\Components\Select::make('jenis_penilaian')
                             ->label('Pilih Jenis Penilaian')
@@ -208,142 +248,91 @@ class StudentResource extends Resource
                                 'Proyek' => 'Proyek',
                                 'Kinerja' => 'Kinerja',
                             ])
-                            ->required(),
+                            ->required()
+                            ->live(),
 
                         \Filament\Forms\Components\Select::make('cp_ids')
                             ->label('Pilih Capaian Pembelajaran (Bisa lebih dari 1)')
-                            ->multiple() // Bisa ceklis banyak
+                            ->multiple()
                             ->preload()
                             ->options(function (\Filament\Forms\Get $get) {
-                                // Hanya tampilkan CP milik Mapel yang dipilih di atas
                                 $mapelId = $get('subject_id');
                                 if (! $mapelId) {
                                     return [];
                                 }
+                                $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
-                                // Catatan: Sesuaikan 'capaian_pembelajaran' dengan nama kolom di database Akang
-                                return \App\Models\LearningOutcome::where('subject_id', $mapelId)->pluck('deskripsi', 'id');
+                                return \App\Models\LearningOutcome::where('school_profile_id', $tenantId)
+                                    ->where('subject_id', $mapelId)
+                                    ->pluck('deskripsi', 'id');
                             }),
 
                         \Filament\Forms\Components\Select::make('tp_ids')
                             ->label('Pilih Tujuan Pembelajaran (Bisa lebih dari 1)')
-                            ->multiple() // Bisa ceklis banyak
+                            ->multiple()
                             ->preload()
                             ->options(function (\Filament\Forms\Get $get) {
-                                // Hanya tampilkan TP milik Mapel yang dipilih di atas
                                 $mapelId = $get('subject_id');
                                 if (! $mapelId) {
                                     return [];
                                 }
+                                $tenantId = \Filament\Facades\Filament::getTenant()?->id;
 
-                                // Catatan: Sesuaikan 'tujuan_pembelajaran' dengan nama kolom di database Akang
-                                return \App\Models\LearningObjective::where('subject_id', $mapelId)->pluck('deskripsi', 'id');
+                                return \App\Models\LearningObjective::where('school_profile_id', $tenantId)
+                                    ->where('subject_id', $mapelId)
+                                    ->pluck('deskripsi', 'id');
+                            }),
+
+                        \Filament\Forms\Components\Select::make('aspect_ids')
+                            ->label('Pilih Aspek yang Akan Dicetak')
+                            ->multiple()
+                            ->preload()
+                            ->options(function (\Filament\Forms\Get $get) {
+                                $jenis = $get('jenis_penilaian');
+                                if (! $jenis) {
+                                    return [];
+                                }
+                                $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+
+                                $query = \App\Models\Aspect::where('school_profile_id', $tenantId)
+                                    ->where('jenis_penilaian', $jenis);
+
+                                if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                                    $query->where('kelas', auth()->user()->kelas);
+                                }
+
+                                return $query->pluck('nama_aspek', 'id');
                             }),
                     ])
-                    ->action(function ($record, array $data) {
-                        // Kirim semua data (termasuk array pilihan TP/CP) ke URL Controller
-                        return redirect()->route('cetak.rapor', [
-                            'id' => $record->id,
+                    ->action(function ($record, array $data, $livewire) {
+                        // Bangun URL dengan query params
+                        $params = [
                             'subject_id' => $data['subject_id'],
                             'jenis_penilaian' => $data['jenis_penilaian'],
-                            'cp_ids' => $data['cp_ids'] ?? [],
-                            'tp_ids' => $data['tp_ids'] ?? [],
-                        ]);
-                    }),
-                // --- TOMBOL INPUT NILAI MATRIX ---
-                Tables\Actions\Action::make('input_nilai')
-                    ->label('Input Nilai')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('warning')
-
-                    // 1. Membaca Nilai yang sudah ada (Supaya kalau guru mau edit, nilainya gak kosong)
-                    ->mountUsing(function (\Filament\Forms\ComponentContainer $form, $record) {
-                        $existingScores = \App\Models\Score::where('student_id', $record->id)
-                            ->pluck('score_value', 'indicator_id')
-                            ->toArray();
-
-                        $formData = [];
-                        foreach ($existingScores as $indicatorId => $scoreValue) {
-                            $formData['indicator_'.$indicatorId] = $scoreValue;
-                        }
-                        $form->fill($formData);
-                    })
-
-                    // 2. Membuat Form Dinamis (Memanggil seluruh indikator dari database)
-                    ->form(function () {
-                        $indicators = \App\Models\Indicator::with('aspect')->get();
-                        $groupedIndicators = $indicators->groupBy('aspect_id');
-
-                        $schema = [
-                            \Filament\Forms\Components\Select::make('filter_jenis_penilaian')
-                                ->label('Tampilkan Berdasarkan Jenis Penilaian')
-                                ->options([
-                                    'Semua' => 'Tampilkan Semua',
-                                    'Kinerja' => 'Hanya Kinerja',
-                                    'Proyek' => 'Hanya Proyek',
-                                ])
-                                ->live()
-                                ->default('Semua')
-                                ->columnSpanFull(),
                         ];
 
-                        foreach ($groupedIndicators as $aspectId => $inds) {
-                            $aspectName = $inds->first()->aspect->nama_aspek ?? 'Tanpa Aspek';
-                            $jenisPenilaian = $inds->first()->aspect->jenis_penilaian ?? '';
-
-                            $fields = [];
-                            foreach ($inds as $ind) {
-                                // Bikin pilihan ganda untuk setiap indikator
-                                $fields[] = \Filament\Forms\Components\Radio::make('indicator_'.$ind->id)
-                                    ->label($ind->nama_indikator)
-                                    ->helperText($ind->deskripsi_kriteria) // Munculin deskripsi kecil di bawahnya
-                                    ->options([
-                                        1 => '1 - Perlu Bimbingan',
-                                        2 => '2 - Cukup',
-                                        3 => '3 - Baik',
-                                        4 => '4 - Sangat Baik',
-                                    ])
-                                    ->inline() // Biar tombol radionya nyamping (nggak menuhin layar)
-                                    ->required();
-                            }
-
-                            // Kelompokkan dalam kotak (Section) berdasarkan Aspek biar rapi
-                            $schema[] = \Filament\Forms\Components\Section::make($aspectName.' ('.$jenisPenilaian.')')
-                                ->schema($fields)
-                                ->visible(fn (\Filament\Forms\Get $get) => 
-                                    $get('filter_jenis_penilaian') === 'Semua' || 
-                                    $get('filter_jenis_penilaian') === $jenisPenilaian
-                                )
-                                ->collapsed(); // Kotaknya bisa di-klik untuk buka-tutup
-                        }
-
-                        return $schema;
-                    })
-
-                    // 3. Menyimpan Data ke Database saat guru klik "Simpan"
-                    ->action(function ($record, array $data) {
-                        foreach ($data as $key => $value) {
-                            if (str_starts_with($key, 'indicator_')) {
-                                $indicatorId = str_replace('indicator_', '', $key);
-
-                                // Simpan nilai baru atau Timpa nilai lama jika diedit
-                                \App\Models\Score::updateOrCreate(
-                                    [
-                                        'student_id' => $record->id,
-                                        'indicator_id' => $indicatorId,
-                                    ],
-                                    [
-                                        'score_value' => $value,
-                                    ]
-                                );
+                        if (! empty($data['cp_ids'])) {
+                            foreach ($data['cp_ids'] as $i => $cpId) {
+                                $params["cp_ids[$i]"] = $cpId;
                             }
                         }
 
-                        \Filament\Notifications\Notification::make()
-                            ->title('Berhasil!')
-                            ->body('Nilai untuk '.$record->nama.' berhasil disimpan.')
-                            ->success()
-                            ->send();
+                        if (! empty($data['tp_ids'])) {
+                            foreach ($data['tp_ids'] as $i => $tpId) {
+                                $params["tp_ids[$i]"] = $tpId;
+                            }
+                        }
+
+                        if (! empty($data['aspect_ids'])) {
+                            foreach ($data['aspect_ids'] as $i => $aspectId) {
+                                $params["aspect_ids[$i]"] = $aspectId;
+                            }
+                        }
+
+                        $url = route('cetak.rapor', ['id' => $record->id]).'?'.http_build_query($params);
+
+                        // Buka di tab baru menggunakan JavaScript (target="_blank")
+                        $livewire->js("window.open('{$url}', '_blank')");
                     }),
             ])
             ->bulkActions([
@@ -369,16 +358,16 @@ class StudentResource extends Resource
             'edit' => Pages\EditStudent::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         // Scope hanya untuk role admin (guru)
         if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
             $query->where('kelas', auth()->user()->kelas);
         }
-        
+
         return $query;
     }
 }

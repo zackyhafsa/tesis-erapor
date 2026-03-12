@@ -5,28 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Score extends Model
+class PenilaianConfig extends Model
 {
     protected $guarded = [];
 
     protected $casts = [
+        'aspect_ids' => 'array',
         'cp_ids' => 'array',
         'tp_ids' => 'array',
     ];
 
-    public function student()
-    {
-        return $this->belongsTo(Student::class);
-    }
-
-    public function indicator()
-    {
-        return $this->belongsTo(Indicator::class);
-    }
-
     public function schoolProfile(): BelongsTo
     {
         return $this->belongsTo(SchoolProfile::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function subject(): BelongsTo

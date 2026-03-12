@@ -14,17 +14,19 @@ class ScoreResource extends Resource
 {
     protected static ?string $model = Score::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calculator';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $navigationLabel = 'Data Nilai';
+    protected static ?string $navigationLabel = 'Konsep Penilaian';
 
-    protected static ?string $modelLabel = 'Nilai';
+    protected static ?string $modelLabel = 'Konsep Penilaian';
 
-    protected static ?string $pluralModelLabel = 'Data Nilai';
+    protected static ?string $pluralModelLabel = 'Konsep Penilaian';
 
     protected static ?string $navigationGroup = 'Penilaian';
 
     protected static ?int $navigationSort = 3;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
@@ -33,7 +35,7 @@ class ScoreResource extends Resource
                 Forms\Components\Select::make('student_id')
                     ->relationship('student', 'nama', function ($query) {
                         $query->where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id);
-                        
+
                         // Filter agar guru cuma bisa lihat siswa di kelasnya sendiri
                         if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
                             $query->where('kelas', auth()->user()->kelas);
@@ -129,20 +131,21 @@ class ScoreResource extends Resource
             'index' => Pages\ListScores::route('/'),
             'create' => Pages\CreateScore::route('/create'),
             'edit' => Pages\EditScore::route('/{record}/edit'),
+            'input-nilai' => Pages\InputNilai::route('/input-nilai'),
         ];
     }
-    
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         // Cuma munculin nilai siswa yang kelasnya sama dengan kelas guru
         if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
             $query->whereHas('student', function ($q) {
                 $q->where('kelas', auth()->user()->kelas);
             });
         }
-        
+
         return $query;
     }
 }
