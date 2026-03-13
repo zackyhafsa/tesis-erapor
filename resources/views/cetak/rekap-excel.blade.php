@@ -74,3 +74,27 @@
         @endforeach
     </tbody>
 </table>
+
+<table><tr></tr><tr></tr></table>
+
+<h4>3. Rekap Ketuntasan @if($konsep == 'Range') (Rentang Nilai: Tuntas {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }}) @else (Berdasarkan KKTP: {{ $kktp ?? 75 }}) @endif</h4>
+<table border="1">
+    <thead>
+        <tr>
+            <th style="background-color: #d1d5db; text-align: center;">No</th>
+            <th style="background-color: #d1d5db; text-align: center;">Nama Siswa</th>
+            <th style="background-color: #d1d5db; text-align: center;">Nilai Akhir (0-100)</th>
+            <th style="background-color: #d1d5db; text-align: center;">Keterangan Ketuntasan</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($rekapData as $index => $data)
+        <tr>
+            <td style="text-align: center;">{{ $index + 1 }}</td>
+            <td><b>{{ $data['student']->nama }}</b></td>
+            <td style="text-align: center; color: blue;"><b>{{ $data['nilaiAkhir'] }}</b></td>
+            <td style="text-align: center; font-weight: bold; color: {{ $data['ketuntasan'] == 'Tuntas' ? 'green' : 'red' }}">{{ $data['ketuntasan'] }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>

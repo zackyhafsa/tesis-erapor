@@ -195,14 +195,22 @@
             <td>NIPD / NISN</td>
             <td>:</td>
             <td>{{ $siswa->nipd ?? '-' }}</td>
-            <td>Semester</td>
+            <td>Nama Rombel</td>
             <td>:</td>
-            <td>{{ $sekolah->semester ?? '-' }}</td>
+            <td class="text-bold">{{ $siswa->nama_kelas ?? '-' }}</td>
         </tr>
         <tr>
             <td>Mata Pelajaran</td>
             <td>:</td>
             <td class="text-bold">{{ $mapel->nama_mapel ?? '-' }}</td>
+            <td>Semester</td>
+            <td>:</td>
+            <td>{{ $sekolah->semester ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
             <td>Tahun Pelajaran</td>
             <td>:</td>
             <td>{{ $sekolah->tahun_pelajaran ?? '-' }}</td>
@@ -310,7 +318,15 @@
 
             <td>
                 <b>Kategori Predikat:</b> {{ $kategori }}<br>
-                <b>Keterangan Ketuntasan:</b> <span class="text-bold">{{ $ketuntasan }}</span><br><br>
+                <b>Keterangan Ketuntasan:</b> <span class="text-bold">{{ $ketuntasan }}</span><br>
+                @if(($konsepKetuntasan ?? 'Tidak Range') === 'Range')
+                    <span style="font-size: 9px; color: #555;">Konsep: Range (Tuntas:
+                        {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas:
+                        {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})</span><br>
+                @else
+                    <span style="font-size: 9px; color: #555;">Konsep: KKTP ({{ $kktp }})</span><br>
+                @endif
+                <br>
 
                 <b>Kelebihan Siswa:</b><br>
                 {{ $refleksi->kelebihan_siswa ?? 'Belum ada data refleksi.' }}<br><br>
@@ -334,7 +350,7 @@
             </td>
             <td>
                 {{ $sekolah->tempat_cetak ?? '.....................' }},
-                {{ $sekolah->tanggal_cetak ? \Carbon\Carbon::parse($sekolah->tanggal_cetak)->translatedFormat('d F Y') : '.....................' }}<br>
+                {{ $sekolah->tanggal_cetak ? \Carbon\Carbon::parse($sekolah->tanggal_cetak)->locale('id')->translatedFormat('d F Y') : '.....................' }}<br>
                 Guru Kelas
                 <div class="nama-ttd">{{ $sekolah->guru_kelas ?? '...................................' }}</div>
                 NIP. {{ $sekolah->nip_guru ?? '-' }}

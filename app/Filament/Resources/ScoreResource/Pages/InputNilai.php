@@ -133,6 +133,24 @@ class InputNilai extends Page
             $query->where('subject_id', $this->subject_id);
         }
 
+        // Filter by current cp_ids context – only show scores that match current CP selection
+        if (! empty($this->cp_ids)) {
+            $query->where(function ($q) {
+                foreach ($this->cp_ids as $cpId) {
+                    $q->orWhereJsonContains('cp_ids', (string) $cpId);
+                }
+            });
+        }
+
+        // Filter by current tp_ids context – only show scores that match current TP selection
+        if (! empty($this->tp_ids)) {
+            $query->where(function ($q) {
+                foreach ($this->tp_ids as $tpId) {
+                    $q->orWhereJsonContains('tp_ids', (string) $tpId);
+                }
+            });
+        }
+
         $existingScores = $query->pluck('score_value', 'indicator_id')
             ->toArray();
 
@@ -186,19 +204,35 @@ class InputNilai extends Page
 
         foreach ($this->scores as $indicatorId => $value) {
             if ($value !== null && $value !== '') {
-                Score::updateOrCreate(
-                    [
-                        'student_id' => $this->student_id,
-                        'indicator_id' => $indicatorId,
-                        'subject_id' => $this->subject_id,
-                    ],
-                    [
-                        'score_value' => (int) $value,
-                        'school_profile_id' => $tenantId,
-                        'cp_ids' => $this->cp_ids ?? [],
-                        'tp_ids' => $this->tp_ids ?? [],
-                    ]
-                );
+                $score = Score::firstOrNew([
+                    'student_id' => $this->student_id,
+                    'indicator_id' => $indicatorId,
+                    'subject_id' => $this->subject_id,
+                ]);
+
+                $existingCpIds = is_array($score->cp_ids) ? $score->cp_ids : [];
+                $existingTpIds = is_array($score->tp_ids) ? $score->tp_ids : [];
+
+                $mergedCpIds = collect(array_merge($existingCpIds, $this->cp_ids ?? []))
+                    ->filter(fn ($id) => $id !== null && $id !== '')
+                    ->map(fn ($id) => (string) $id)
+                    ->unique()
+                    ->values()
+                    ->toArray();
+
+                $mergedTpIds = collect(array_merge($existingTpIds, $this->tp_ids ?? []))
+                    ->filter(fn ($id) => $id !== null && $id !== '')
+                    ->map(fn ($id) => (string) $id)
+                    ->unique()
+                    ->values()
+                    ->toArray();
+
+                $score->score_value = (int) $value;
+                $score->school_profile_id = $tenantId;
+                $score->cp_ids = $mergedCpIds;
+                $score->tp_ids = $mergedTpIds;
+                $score->save();
+
                 $savedCount++;
             }
         }

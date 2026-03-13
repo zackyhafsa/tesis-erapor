@@ -52,11 +52,34 @@ class RekapNilai extends Page implements HasForms
     public function mount()
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        $this->subject_id = Subject::where('school_profile_id', $tenantId)->first()->id ?? null;
         
         // Default kelas filter jika guru yang login
         if (auth()->user()?->role === 'admin') {
             $this->kelas_filter = auth()->user()?->kelas;
+        }
+
+        // Load saved settings from PenilaianConfig (Konsep Penilaian)
+        $config = \App\Models\PenilaianConfig::where('school_profile_id', $tenantId)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($config) {
+            $this->subject_id = $config->subject_id ? (string) $config->subject_id : null;
+            $this->jenis_penilaian = $config->jenis_penilaian ?? 'Proyek';
+            $this->konsep_ketuntasan = $config->konsep_ketuntasan ?? 'Tidak Range';
+            $this->range_tuntas_min = $config->range_tuntas_min ?? 75;
+            $this->range_tuntas_max = $config->range_tuntas_max ?? 100;
+            $this->range_tidak_tuntas_min = $config->range_tidak_tuntas_min ?? 0;
+            $this->range_tidak_tuntas_max = $config->range_tidak_tuntas_max ?? 74;
+        }
+
+        // Fallback jika subject_id belum ada di config
+        if (! $this->subject_id) {
+            $query = Subject::where('school_profile_id', $tenantId);
+            if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                $query->where('kelas', auth()->user()->kelas);
+            }
+            $this->subject_id = $query->first()?->id ?? null;
         }
         
         $this->form->fill([
@@ -71,13 +94,44 @@ class RekapNilai extends Page implements HasForms
         ]);
     }
 
+    /**
+     * Simpan settingan ketuntasan ke PenilaianConfig.
+     */
+    protected function saveKetuntasanSettings(): void
+    {
+        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+
+        \App\Models\PenilaianConfig::updateOrCreate(
+            [
+                'school_profile_id' => $tenantId,
+                'user_id' => auth()->id(),
+            ],
+            [
+                'konsep_ketuntasan' => $this->konsep_ketuntasan,
+                'range_tuntas_min' => $this->range_tuntas_min,
+                'range_tuntas_max' => $this->range_tuntas_max,
+                'range_tidak_tuntas_min' => $this->range_tidak_tuntas_min,
+                'range_tidak_tuntas_max' => $this->range_tidak_tuntas_max,
+            ]
+        );
+    }
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('subject_id')
                     ->label('Pilih Mata Pelajaran')
-                    ->options(fn () => Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
+                    ->options(function () {
+                        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                        $query = Subject::where('school_profile_id', $tenantId);
+
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $query->where('kelas', auth()->user()->kelas);
+                        }
+
+                        return $query->pluck('nama_mapel', 'id');
+                    })
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
 
@@ -112,7 +166,10 @@ class RekapNilai extends Page implements HasForms
                         'Range' => 'Range (Tentukan Rentang Nilai)',
                     ])
                     ->live()
-                    ->afterStateUpdated(fn ($state) => $this->konsep_ketuntasan = $state),
+                    ->afterStateUpdated(function ($state) {
+                        $this->konsep_ketuntasan = $state;
+                        $this->saveKetuntasanSettings();
+                    }),
 
                 // Input rentang nilai untuk Tuntas (hanya muncul saat konsep = Range)
                 \Filament\Forms\Components\Fieldset::make('Rentang Nilai Tuntas')
@@ -123,14 +180,20 @@ class RekapNilai extends Page implements HasForms
                             ->minValue(0)
                             ->maxValue(100)
                             ->live()
-                            ->afterStateUpdated(fn ($state) => $this->range_tuntas_min = (int) $state),
+                            ->afterStateUpdated(function ($state) {
+                                $this->range_tuntas_min = (int) $state;
+                                $this->saveKetuntasanSettings();
+                            }),
                         \Filament\Forms\Components\TextInput::make('range_tuntas_max')
                             ->label('Nilai Max')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
                             ->live()
-                            ->afterStateUpdated(fn ($state) => $this->range_tuntas_max = (int) $state),
+                            ->afterStateUpdated(function ($state) {
+                                $this->range_tuntas_max = (int) $state;
+                                $this->saveKetuntasanSettings();
+                            }),
                     ])
                     ->columns(2)
                     ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
@@ -144,14 +207,20 @@ class RekapNilai extends Page implements HasForms
                             ->minValue(0)
                             ->maxValue(100)
                             ->live()
-                            ->afterStateUpdated(fn ($state) => $this->range_tidak_tuntas_min = (int) $state),
+                            ->afterStateUpdated(function ($state) {
+                                $this->range_tidak_tuntas_min = (int) $state;
+                                $this->saveKetuntasanSettings();
+                            }),
                         \Filament\Forms\Components\TextInput::make('range_tidak_tuntas_max')
                             ->label('Nilai Max')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
                             ->live()
-                            ->afterStateUpdated(fn ($state) => $this->range_tidak_tuntas_max = (int) $state),
+                            ->afterStateUpdated(function ($state) {
+                                $this->range_tidak_tuntas_max = (int) $state;
+                                $this->saveKetuntasanSettings();
+                            }),
                     ])
                     ->columns(2)
                     ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
@@ -254,7 +323,9 @@ class RekapNilai extends Page implements HasForms
         $rekapData = [];
 
         foreach ($students as $student) {
-            $studentScores = $student->scores->whereIn('indicator.aspect_id', $aspects->pluck('id'));
+            $studentScores = $student->scores
+                ->where('subject_id', (int) $this->subject_id)
+                ->whereIn('indicator.aspect_id', $aspects->pluck('id'));
 
             $aspectScores = [];
             $totalScoreValue = 0;

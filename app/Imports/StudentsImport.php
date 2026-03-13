@@ -40,8 +40,37 @@ class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts
 
         $student->nipd = $row['nipd_nisn'] ?? null;
         $student->nama = $row['nama_lengkap'];
-        $student->kelas = $row['kelas'] ?? null;
-        $student->fase = $row['fase'] ?? null;
+
+        // Jika yang import adalah guru (admin), paksa kelas/nama_kelas/fase dari profil guru
+        $user = auth()->user();
+        if ($user && $user->role === 'admin' && $user->kelas) {
+            $student->kelas = $user->kelas;
+            $student->nama_kelas = $user->nama_kelas;
+            // Auto-hitung fase dari kelas guru
+            $angkaKelas = (int) $user->kelas;
+            $student->fase = match (true) {
+                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                default => $row['fase'] ?? null,
+            };
+        } else {
+            $student->kelas = $row['kelas'] ?? null;
+            $student->nama_kelas = $row['nama_kelas_rombel'] ?? null;
+            $student->fase = $row['fase'] ?? null;
+
+            // Auto-hitung fase jika kelas diisi tapi fase kosong
+            if (!empty($student->kelas) && empty($student->fase)) {
+                $angkaKelas = (int) $student->kelas;
+                $student->fase = match (true) {
+                    $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                    $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                    $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                    default => null,
+                };
+            }
+        }
+
         $student->jenis_kelamin = $row['jenis_kelamin'] ?? null;
         $student->tempat_lahir = $row['tempat_lahir'] ?? null;
         

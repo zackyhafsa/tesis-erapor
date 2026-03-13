@@ -223,6 +223,11 @@ class StudentResource extends Resource
                             'cp_ids' => $config->cp_ids ?? [],
                             'tp_ids' => $config->tp_ids ?? [],
                             'aspect_ids' => $config->aspect_ids ?? [],
+                            'konsep_ketuntasan' => $config->konsep_ketuntasan ?? 'Tidak Range',
+                            'range_tuntas_min' => $config->range_tuntas_min ?? 75,
+                            'range_tuntas_max' => $config->range_tuntas_max ?? 100,
+                            'range_tidak_tuntas_min' => $config->range_tidak_tuntas_min ?? 0,
+                            'range_tidak_tuntas_max' => $config->range_tidak_tuntas_max ?? 74,
                         ];
                     })
                     ->form([
@@ -303,13 +308,66 @@ class StudentResource extends Resource
 
                                 return $query->pluck('nama_aspek', 'id');
                             }),
+
+                        \Filament\Forms\Components\Select::make('konsep_ketuntasan')
+                            ->label('Konsep Ketuntasan')
+                            ->options([
+                                'Tidak Range' => 'Tidak Range (Otomatis dari KKTP)',
+                                'Range' => 'Range (Tentukan Rentang Nilai)',
+                            ])
+                            ->default('Tidak Range')
+                            ->live(),
+
+                        \Filament\Forms\Components\Fieldset::make('Rentang Nilai Tuntas')
+                            ->schema([
+                                \Filament\Forms\Components\TextInput::make('range_tuntas_min')
+                                    ->label('Nilai Min')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->default(75),
+                                \Filament\Forms\Components\TextInput::make('range_tuntas_max')
+                                    ->label('Nilai Max')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->default(100),
+                            ])
+                            ->columns(2)
+                            ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
+
+                        \Filament\Forms\Components\Fieldset::make('Rentang Nilai Tidak Tuntas')
+                            ->schema([
+                                \Filament\Forms\Components\TextInput::make('range_tidak_tuntas_min')
+                                    ->label('Nilai Min')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->default(0),
+                                \Filament\Forms\Components\TextInput::make('range_tidak_tuntas_max')
+                                    ->label('Nilai Max')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->default(74),
+                            ])
+                            ->columns(2)
+                            ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
                     ])
                     ->action(function ($record, array $data, $livewire) {
                         // Bangun URL dengan query params
                         $params = [
                             'subject_id' => $data['subject_id'],
                             'jenis_penilaian' => $data['jenis_penilaian'],
+                            'konsep_ketuntasan' => $data['konsep_ketuntasan'] ?? 'Tidak Range',
                         ];
+
+                        if (($data['konsep_ketuntasan'] ?? '') === 'Range') {
+                            $params['range_tuntas_min'] = $data['range_tuntas_min'] ?? 75;
+                            $params['range_tuntas_max'] = $data['range_tuntas_max'] ?? 100;
+                            $params['range_tidak_tuntas_min'] = $data['range_tidak_tuntas_min'] ?? 0;
+                            $params['range_tidak_tuntas_max'] = $data['range_tidak_tuntas_max'] ?? 74;
+                        }
 
                         if (! empty($data['cp_ids'])) {
                             foreach ($data['cp_ids'] as $i => $cpId) {

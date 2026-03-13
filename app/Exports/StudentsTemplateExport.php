@@ -14,7 +14,8 @@ class StudentsTemplateExport implements WithHeadings, WithTitle, WithStyles
         return [
             'NIPD / NISN',
             'Nama Lengkap',
-            'Kelas (Opsional untuk Guru)',
+            'Kelas',
+            'Nama Kelas Rombel',
             'Fase',
             'Jenis Kelamin',
             'Tempat Lahir',

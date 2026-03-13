@@ -114,7 +114,23 @@ class RaporController extends Controller
         }
 
         $kktp = $mapel->kktp ?? 75;
-        $ketuntasan = $nilaiSkala100 >= $kktp ? 'Tuntas' : 'Belum Tuntas';
+
+        // --- KONSEP KETUNTASAN (dari modal cetak rapor) ---
+        $konsepKetuntasan = $request->query('konsep_ketuntasan', 'Tidak Range');
+        $rangeTuntasMin = (int) $request->query('range_tuntas_min', 75);
+        $rangeTuntasMax = (int) $request->query('range_tuntas_max', 100);
+        $rangeTidakTuntasMin = (int) $request->query('range_tidak_tuntas_min', 0);
+        $rangeTidakTuntasMax = (int) $request->query('range_tidak_tuntas_max', 74);
+
+        if ($konsepKetuntasan === 'Range') {
+            if ($nilaiSkala100 >= $rangeTuntasMin && $nilaiSkala100 <= $rangeTuntasMax) {
+                $ketuntasan = 'Tuntas';
+            } else {
+                $ketuntasan = 'Belum Tuntas';
+            }
+        } else {
+            $ketuntasan = $nilaiSkala100 >= $kktp ? 'Tuntas' : 'Belum Tuntas';
+        }
 
         $terkuat = $skorSiswa->sortByDesc('score_value')->take(3);
         $terlemah = $skorSiswa->sortBy('score_value')->take(3);
@@ -135,7 +151,7 @@ class RaporController extends Controller
             'sekolah' => $sekolah,
             'nilaiSiswa' => $nilaiSiswa,
             'mapel' => $mapel,
-            'jenisPenilaian' => $jenisPenilaian, // Kirim variabel ini ke PDF
+            'jenisPenilaian' => $jenisPenilaian,
             'jumlahSkor' => $jumlahSkor,
             'nilaiSkala100' => $nilaiSkala100,
             'kategori' => $kategori,
@@ -147,6 +163,11 @@ class RaporController extends Controller
             'refleksi' => $refleksi,
             'cps' => $cps,
             'tps' => $tps,
+            'konsepKetuntasan' => $konsepKetuntasan,
+            'rangeTuntasMin' => $rangeTuntasMin,
+            'rangeTuntasMax' => $rangeTuntasMax,
+            'rangeTidakTuntasMin' => $rangeTidakTuntasMin,
+            'rangeTidakTuntasMax' => $rangeTidakTuntasMax,
         ]);
 
         return $pdf->stream('Rapor_'.$jenisPenilaian.'_'.$siswa->nama.'.pdf');
