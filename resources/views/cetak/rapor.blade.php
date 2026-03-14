@@ -245,7 +245,14 @@
         <tr>
             <td style="vertical-align: top;">KKTP</td>
             <td style="vertical-align: top;">:</td>
-            <td colspan="4" class="text-bold" style="vertical-align: top;">{{ $kktp ?? '-' }}</td>
+            <td colspan="4" class="text-bold" style="vertical-align: top;">
+                @if(($konsepKetuntasan ?? 'Tidak Range') === 'Range')
+                    Range (Tuntas: {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Belum Tuntas:
+                    {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})
+                @else
+                    {{ $kktp ?? '-' }}
+                @endif
+            </td>
         </tr>
     </table>
 
@@ -289,74 +296,76 @@
         </tbody>
     </table>
 
-    <div class="section-title">Analisis, Refleksi, dan Tindak Lanjut</div>
-    <table class="table-analisis">
-        <tr>
-            <td>
-                <b>Tiga Indikator Terkuat:</b><br>
-                @foreach($terkuat as $idx => $kuat)
-                    {{ $kuat->indicator->nama_indikator ?? '-' }} (Skor: {{ $kuat->score_value }})<br>
-                @endforeach
-                <br>
-
-                <b>Tiga Indikator Terlemah:</b><br>
-                @foreach($terlemah as $idx => $lemah)
-                    {{ $lemah->indicator->nama_indikator ?? '-' }} (Skor: {{ $lemah->score_value }})<br>
-                @endforeach
-                <br>
-
-                <b>Profil Aspek Kompetensi (Rata-rata):</b><br>
-                <table style="width: 100%; font-size: 10px; margin-top: 5px;">
-                    @foreach($rataPerAspek as $aspek => $rata)
-                        <tr>
-                            <td style="border: none; padding: 1px;">- {{ $aspek }}</td>
-                            <td style="border: none; padding: 1px; text-align: right;">{{ $rata }}</td>
-                        </tr>
+    <div style="page-break-inside: avoid;">
+        <div class="section-title">Analisis, Refleksi, dan Tindak Lanjut</div>
+        <table class="table-analisis">
+            <tr>
+                <td>
+                    <b>Tiga Indikator Terkuat:</b><br>
+                    @foreach($terkuat as $idx => $kuat)
+                        {{ $kuat->indicator->nama_indikator ?? '-' }} (Skor: {{ $kuat->score_value }})<br>
                     @endforeach
-                </table>
-            </td>
+                    <br>
 
-            <td>
-                <b>Kategori Predikat:</b> {{ $kategori }}<br>
-                <b>Keterangan Ketuntasan:</b> <span class="text-bold">{{ $ketuntasan }}</span><br>
-                @if(($konsepKetuntasan ?? 'Tidak Range') === 'Range')
-                    <span style="font-size: 9px; color: #555;">Konsep: Range (Tuntas:
-                        {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas:
-                        {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})</span><br>
-                @else
-                    <span style="font-size: 9px; color: #555;">Konsep: KKTP ({{ $kktp }})</span><br>
-                @endif
-                <br>
+                    <b>Tiga Indikator Terlemah:</b><br>
+                    @foreach($terlemah as $idx => $lemah)
+                        {{ $lemah->indicator->nama_indikator ?? '-' }} (Skor: {{ $lemah->score_value }})<br>
+                    @endforeach
+                    <br>
 
-                <b>Kelebihan Siswa:</b><br>
-                {{ $refleksi->kelebihan_siswa ?? 'Belum ada data refleksi.' }}<br><br>
+                    <b>Profil Aspek Kompetensi (Rata-rata):</b><br>
+                    <table style="width: 100%; font-size: 10px; margin-top: 5px;">
+                        @foreach($rataPerAspek as $aspek => $rata)
+                            <tr>
+                                <td style="border: none; padding: 1px;">- {{ $aspek }}</td>
+                                <td style="border: none; padding: 1px; text-align: right;">{{ $rata }}</td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </td>
 
-                <b>Aspek yang Perlu Ditingkatkan:</b><br>
-                {{ $refleksi->aspek_ditingkatkan ?? 'Belum ada data refleksi.' }}<br><br>
+                <td>
+                    <b>Kategori Predikat:</b> {{ $kategori }}<br>
+                    <b>Keterangan Ketuntasan:</b> <span class="text-bold">{{ $ketuntasan }}</span><br>
+                    @if(($konsepKetuntasan ?? 'Tidak Range') === 'Range')
+                        <span style="font-size: 9px; color: #555;">Konsep: Range (Tuntas:
+                            {{ $rangeTuntasMin }}-{{ $rangeTuntasMax }}, Tidak Tuntas:
+                            {{ $rangeTidakTuntasMin }}-{{ $rangeTidakTuntasMax }})</span><br>
+                    @else
+                        <span style="font-size: 9px; color: #555;">Konsep: KKTP ({{ $kktp }})</span><br>
+                    @endif
+                    <br>
 
-                <b>Refleksi & Tindak Lanjut:</b><br>
-                {{ $refleksi->tindak_lanjut ?? 'Belum ada data refleksi.' }}
-            </td>
-        </tr>
-    </table>
+                    <b>Kelebihan Siswa:</b><br>
+                    {{ $refleksi->kelebihan_siswa ?? 'Belum ada data refleksi.' }}<br><br>
 
-    <table class="tanda-tangan">
-        <tr>
-            <td>
-                Mengetahui,<br>
-                Kepala Sekolah
-                <div class="nama-ttd">{{ $sekolah->kepala_sekolah ?? '...................................' }}</div>
-                NIP. {{ $sekolah->nip_kepsek ?? '-' }}
-            </td>
-            <td>
-                {{ $sekolah->tempat_cetak ?? '.....................' }},
-                {{ $sekolah->tanggal_cetak ? \Carbon\Carbon::parse($sekolah->tanggal_cetak)->locale('id')->translatedFormat('d F Y') : '.....................' }}<br>
-                Guru Kelas
-                <div class="nama-ttd">{{ $sekolah->guru_kelas ?? '...................................' }}</div>
-                NIP. {{ $sekolah->nip_guru ?? '-' }}
-            </td>
-        </tr>
-    </table>
+                    <b>Aspek yang Perlu Ditingkatkan:</b><br>
+                    {{ $refleksi->aspek_ditingkatkan ?? 'Belum ada data refleksi.' }}<br><br>
+
+                    <b>Refleksi & Tindak Lanjut:</b><br>
+                    {{ $refleksi->tindak_lanjut ?? 'Belum ada data refleksi.' }}
+                </td>
+            </tr>
+        </table>
+
+        <table class="tanda-tangan">
+            <tr>
+                <td>
+                    Mengetahui,<br>
+                    Kepala Sekolah
+                    <div class="nama-ttd">{{ $sekolah->kepala_sekolah ?? '...................................' }}</div>
+                    NIP. {{ $sekolah->nip_kepsek ?? '-' }}
+                </td>
+                <td>
+                    {{ $sekolah->tempat_cetak ?? '.....................' }},
+                    {{ $sekolah->tanggal_cetak ? \Carbon\Carbon::parse($sekolah->tanggal_cetak)->locale('id')->translatedFormat('d F Y') : '.....................' }}<br>
+                    Guru Kelas
+                    <div class="nama-ttd">{{ $sekolah->guru_kelas ?? '...................................' }}</div>
+                    NIP. {{ $sekolah->nip_guru ?? '-' }}
+                </td>
+            </tr>
+        </table>
+    </div>
 
 </body>
 

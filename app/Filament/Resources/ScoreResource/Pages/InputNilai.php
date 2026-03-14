@@ -244,5 +244,7 @@ class InputNilai extends Page
             ->title('Berhasil!')
             ->body("$savedCount nilai untuk $studentName berhasil disimpan.")
             ->send();
+
+        $this->redirect(\App\Filament\Resources\StudentResource::getUrl('index'));
     }
 }
