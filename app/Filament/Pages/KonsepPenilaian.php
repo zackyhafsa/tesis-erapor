@@ -6,7 +6,6 @@ use App\Models\Aspect;
 use App\Models\LearningObjective;
 use App\Models\LearningOutcome;
 use App\Models\PenilaianConfig;
-use App\Models\Student;
 use App\Models\Subject;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Section;
@@ -43,6 +42,8 @@ class KonsepPenilaian extends Page implements HasForms
 
     public ?array $tp_ids = [];
 
+    public ?string $load_preset = null;
+
     public function mount(): void
     {
         $tenantId = Filament::getTenant()?->id;
@@ -70,6 +71,46 @@ class KonsepPenilaian extends Page implements HasForms
 
         return $form
             ->schema([
+                Section::make('Riwayat Pengaturan (Satu Klik)')
+                    ->description('Pilih pengaturan sebelumnya untuk mengisi form otomatis tanpa harus menyeting ulang (CP, TP, dll).')
+                    ->icon('heroicon-o-clock')
+                    ->schema([
+                        Select::make('load_preset')
+                            ->label('Pilih Riwayat Pengaturan')
+                            ->options(function () {
+                                $config = PenilaianConfig::where('school_profile_id', Filament::getTenant()?->id)
+                                    ->where('user_id', auth()->id())
+                                    ->first();
+                                if (! $config || empty($config->presets)) {
+                                    return [];
+                                }
+                                $opts = [];
+                                foreach ($config->presets as $key => $preset) {
+                                    $opts[$key] = $preset['name'] ?? 'Riwayat';
+                                }
+
+                                return $opts;
+                            })
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (! $state) {
+                                    return;
+                                }
+                                $config = PenilaianConfig::where('school_profile_id', Filament::getTenant()?->id)
+                                    ->where('user_id', auth()->id())
+                                    ->first();
+                                if ($config && isset($config->presets[$state])) {
+                                    $preset = $config->presets[$state];
+                                    $set('subject_id', $preset['subject_id'] ?? null);
+                                    $set('jenis_penilaian', $preset['jenis_penilaian'] ?? null);
+                                    $set('aspect_ids', $preset['aspect_ids'] ?? []);
+                                    $set('cp_ids', $preset['cp_ids'] ?? []);
+                                    $set('tp_ids', $preset['tp_ids'] ?? []);
+                                }
+                            }),
+                    ])->collapsible(),
+
                 Section::make('Pengaturan Penilaian')
                     ->description('Atur mata pelajaran, capaian pembelajaran, tujuan pembelajaran, jenis penilaian, dan aspek yang akan digunakan saat guru menginput nilai siswa.')
                     ->icon('heroicon-o-adjustments-horizontal')
@@ -165,7 +206,7 @@ class KonsepPenilaian extends Page implements HasForms
         $tenantId = Filament::getTenant()?->id;
         $userId = auth()->id();
 
-        PenilaianConfig::updateOrCreate(
+        $config = PenilaianConfig::updateOrCreate(
             [
                 'school_profile_id' => $tenantId,
                 'user_id' => $userId,
@@ -178,6 +219,23 @@ class KonsepPenilaian extends Page implements HasForms
                 'tp_ids' => $this->tp_ids ?? [],
             ]
         );
+
+        $presets = $config->presets ?? [];
+        $subjectName = Subject::find($this->subject_id)?->nama_mapel ?? 'Mata Pelajaran';
+        $key = $this->subject_id.'_'.str_replace(' ', '', $this->jenis_penilaian);
+
+        $presets[$key] = [
+            'name' => $subjectName.' - '.$this->jenis_penilaian,
+            'subject_id' => $this->subject_id,
+            'jenis_penilaian' => $this->jenis_penilaian,
+            'aspect_ids' => $this->aspect_ids ?? [],
+            'cp_ids' => $this->cp_ids ?? [],
+            'tp_ids' => $this->tp_ids ?? [],
+        ];
+
+        $config->update(['presets' => $presets]);
+
+        $this->load_preset = null; // Reset form pemilihan setelah disimpan
 
         Notification::make()
             ->success()

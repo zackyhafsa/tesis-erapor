@@ -13,6 +13,7 @@ class PenilaianConfig extends Model
         'aspect_ids' => 'array',
         'cp_ids' => 'array',
         'tp_ids' => 'array',
+        'presets' => 'array',
     ];
 
     public function schoolProfile(): BelongsTo
