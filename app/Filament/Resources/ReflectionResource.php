@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ReflectionResource\Pages;
-use App\Filament\Resources\ReflectionResource\RelationManagers;
 use App\Models\Reflection;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ReflectionResource extends Resource
 {
@@ -33,6 +30,19 @@ class ReflectionResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Section::make('Informasi Rentang Predikat')
+                    ->description('Panduan rentang nilai rata-rata (skala 1-4) untuk mempermudah guru memberikan refleksi yang tepat.')
+                    ->schema([
+                        Forms\Components\Placeholder::make('Sangat Baik (SB)')
+                            ->content('Nilai Rata-rata: 3.50 - 4.00'),
+                        Forms\Components\Placeholder::make('Baik / BSH')
+                            ->content('Nilai Rata-rata: 2.50 - 3.49'),
+                        Forms\Components\Placeholder::make('Cukup / MB')
+                            ->content('Nilai Rata-rata: 1.50 - 2.49'),
+                        Forms\Components\Placeholder::make('Perlu Bimbingan (BB)')
+                            ->content('Nilai Rata-rata: < 1.50'),
+                    ])->columns(4)->collapsible(),
+
                 Forms\Components\Select::make('kelas')
                     ->label('Kelas (Tingkat)')
                     ->options([
@@ -55,7 +65,7 @@ class ReflectionResource extends Resource
                         'Proyek' => 'Penilaian Proyek',
                     ])
                     ->required(),
-                
+
                 Forms\Components\Select::make('kategori_predikat')
                     ->label('Kategori Predikat')
                     ->options([
@@ -70,12 +80,12 @@ class ReflectionResource extends Resource
                     ->label('Kelebihan Siswa')
                     ->rows(3)
                     ->columnSpanFull(),
-                
+
                 Forms\Components\Textarea::make('aspek_ditingkatkan')
                     ->label('Aspek yang Perlu Ditingkatkan')
                     ->rows(3)
                     ->columnSpanFull(),
-                
+
                 Forms\Components\Textarea::make('tindak_lanjut')
                     ->label('Rencana Tindak Lanjut / Pengayaan')
                     ->rows(3)
@@ -90,7 +100,7 @@ class ReflectionResource extends Resource
                 Tables\Columns\TextColumn::make('jenis_penilaian')
                     ->label('Jenis')
                     ->badge(),
-                
+
                 Tables\Columns\TextColumn::make('kategori_predikat')
                     ->label('Predikat')
                     ->searchable()
@@ -101,7 +111,7 @@ class ReflectionResource extends Resource
                         'Perlu Bimbingan' => 'danger',
                         default => 'gray',
                     }),
-                
+
                 Tables\Columns\TextColumn::make('tindak_lanjut')
                     ->label('Tindak Lanjut')
                     ->limit(40),
@@ -135,16 +145,16 @@ class ReflectionResource extends Resource
             'edit' => Pages\EditReflection::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         // Cuma munculin refleksi yang dibikin di kelas guru tersebut
         if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
             $query->where('kelas', auth()->user()->kelas);
         }
-        
+
         return $query;
     }
 }
