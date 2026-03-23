@@ -353,6 +353,20 @@ class StudentResource extends Resource
                             ])
                             ->columns(2)
                             ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
+
+                        \Filament\Forms\Components\Section::make('Override Refleksi Manual (Opsional)')
+                            ->description('Kosongkan jika ingin menggunakan refleksi otomatis (dari Menu Refleksi Guru).')
+                            ->schema([
+                                \Filament\Forms\Components\Textarea::make('override_kelebihan')
+                                    ->label('Kelebihan Siswa')
+                                    ->rows(2),
+                                \Filament\Forms\Components\Textarea::make('override_aspek')
+                                    ->label('Aspek yang Perlu Ditingkatkan')
+                                    ->rows(2),
+                                \Filament\Forms\Components\Textarea::make('override_tindak_lanjut')
+                                    ->label('Rencana Tindak Lanjut / Pengayaan')
+                                    ->rows(2),
+                            ])->collapsible()->collapsed(),
                     ])
                     ->action(function ($record, array $data, $livewire) {
                         // Bangun URL dengan query params
@@ -367,6 +381,16 @@ class StudentResource extends Resource
                             $params['range_tuntas_max'] = $data['range_tuntas_max'] ?? 100;
                             $params['range_tidak_tuntas_min'] = $data['range_tidak_tuntas_min'] ?? 0;
                             $params['range_tidak_tuntas_max'] = $data['range_tidak_tuntas_max'] ?? 74;
+                        }
+
+                        if (! empty($data['override_kelebihan'])) {
+                            $params['override_kelebihan'] = $data['override_kelebihan'];
+                        }
+                        if (! empty($data['override_aspek'])) {
+                            $params['override_aspek'] = $data['override_aspek'];
+                        }
+                        if (! empty($data['override_tindak_lanjut'])) {
+                            $params['override_tindak_lanjut'] = $data['override_tindak_lanjut'];
                         }
 
                         if (! empty($data['cp_ids'])) {

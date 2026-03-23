@@ -104,13 +104,17 @@ class RaporController extends Controller
         $nilaiSkala100 = $jumlahIndikator > 0 ? round(($jumlahSkor / ($jumlahIndikator * 4)) * 100) : 0;
 
         $rataRata = $skorSiswa->avg('score_value') ?? 0;
-        $kategori = 'Perlu Bimbingan / Belum Berkembang';
-        if ($rataRata >= 3.5) {
-            $kategori = 'Sangat Baik / Sangat Berkembang';
-        } elseif ($rataRata >= 2.5) {
-            $kategori = 'Baik / Berkembang Sesuai Harapan';
-        } elseif ($rataRata >= 1.5) {
-            $kategori = 'Cukup / Mulai Berkembang';
+        $kategori = 'Belum Berkembang (BB)';
+        $kategoriDb = 'Perlu Bimbingan';
+        if ($nilaiSkala100 >= 91) {
+            $kategori = 'Sangat Baik (SB)';
+            $kategoriDb = 'Sangat Baik';
+        } elseif ($nilaiSkala100 >= 76) {
+            $kategori = 'Berkembang Sesuai Harapan (BSH)';
+            $kategoriDb = 'Baik';
+        } elseif ($nilaiSkala100 >= 61) {
+            $kategori = 'Mulai Berkembang (MB)';
+            $kategoriDb = 'Cukup';
         }
 
         $kktp = $mapel->kktp ?? 75;
@@ -141,10 +145,36 @@ class RaporController extends Controller
             return round(collect($row)->avg('score_value'), 2);
         });
 
-        $kategoriPendek = explode(' / ', $kategori)[0];
-        $refleksi = Reflection::where('kategori_predikat', 'LIKE', "%$kategoriPendek%")
+        $refleksiModel = Reflection::where('kategori_predikat', 'LIKE', "%$kategoriDb%")
             ->where('kelas', $siswa->kelas)
             ->first();
+
+        // Ambil string array atau string dari model
+        $kelebihan_siswa = $refleksiModel?->kelebihan_siswa ?? 'Belum ada data refleksi.';
+        if (is_array($kelebihan_siswa)) $kelebihan_siswa = implode(', ', $kelebihan_siswa);
+
+        $aspek_ditingkatkan = $refleksiModel?->aspek_ditingkatkan ?? 'Belum ada data refleksi.';
+        if (is_array($aspek_ditingkatkan)) $aspek_ditingkatkan = implode(', ', $aspek_ditingkatkan);
+
+        $tindak_lanjut = $refleksiModel?->tindak_lanjut ?? 'Belum ada data refleksi.';
+        if (is_array($tindak_lanjut)) $tindak_lanjut = implode(', ', $tindak_lanjut);
+
+        // Jika ada override dari request, gunakan override tersebut
+        if ($request->filled('override_kelebihan')) {
+            $kelebihan_siswa = $request->query('override_kelebihan');
+        }
+        if ($request->filled('override_aspek')) {
+            $aspek_ditingkatkan = $request->query('override_aspek');
+        }
+        if ($request->filled('override_tindak_lanjut')) {
+            $tindak_lanjut = $request->query('override_tindak_lanjut');
+        }
+
+        $refleksi = (object) [
+            'kelebihan_siswa' => $kelebihan_siswa,
+            'aspek_ditingkatkan' => $aspek_ditingkatkan,
+            'tindak_lanjut' => $tindak_lanjut,
+        ];
 
         $pdf = Pdf::loadView('cetak.rapor', [
             'siswa' => $siswa,
