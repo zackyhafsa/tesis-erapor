@@ -151,23 +151,23 @@ class RaporController extends Controller
 
         // Ambil string array atau string dari model
         $kelebihan_siswa = $refleksiModel?->kelebihan_siswa ?? 'Belum ada data refleksi.';
-        if (is_array($kelebihan_siswa)) $kelebihan_siswa = implode(', ', $kelebihan_siswa);
+        if (is_array($kelebihan_siswa)) $kelebihan_siswa = implode('<br>', $kelebihan_siswa);
 
         $aspek_ditingkatkan = $refleksiModel?->aspek_ditingkatkan ?? 'Belum ada data refleksi.';
-        if (is_array($aspek_ditingkatkan)) $aspek_ditingkatkan = implode(', ', $aspek_ditingkatkan);
+        if (is_array($aspek_ditingkatkan)) $aspek_ditingkatkan = implode('<br>', $aspek_ditingkatkan);
 
         $tindak_lanjut = $refleksiModel?->tindak_lanjut ?? 'Belum ada data refleksi.';
-        if (is_array($tindak_lanjut)) $tindak_lanjut = implode(', ', $tindak_lanjut);
+        if (is_array($tindak_lanjut)) $tindak_lanjut = implode('<br>', $tindak_lanjut);
 
         // Jika ada override dari request, gunakan override tersebut
         if ($request->filled('override_kelebihan')) {
-            $kelebihan_siswa = $request->query('override_kelebihan');
+            $kelebihan_siswa = nl2br(e($request->query('override_kelebihan')));
         }
         if ($request->filled('override_aspek')) {
-            $aspek_ditingkatkan = $request->query('override_aspek');
+            $aspek_ditingkatkan = nl2br(e($request->query('override_aspek')));
         }
         if ($request->filled('override_tindak_lanjut')) {
-            $tindak_lanjut = $request->query('override_tindak_lanjut');
+            $tindak_lanjut = nl2br(e($request->query('override_tindak_lanjut')));
         }
 
         $refleksi = (object) [

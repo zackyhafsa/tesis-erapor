@@ -53,7 +53,7 @@ class ListLearningObjectives extends ListRecords
                     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\LearningObjectivesTemplateExport, 'Template_Import_TP.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

@@ -53,7 +53,7 @@ class ListIndicators extends ListRecords
                     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\IndicatorsTemplateExport, 'Template_Import_Indikator.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

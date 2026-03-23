@@ -53,7 +53,7 @@ class ListSubjects extends ListRecords
                     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\SubjectsTemplateExport, 'Template_Import_Mapel.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

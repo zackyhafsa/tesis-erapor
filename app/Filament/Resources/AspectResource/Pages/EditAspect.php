@@ -10,6 +10,11 @@ class EditAspect extends EditRecord
 {
     protected static string $resource = AspectResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

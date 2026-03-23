@@ -59,7 +59,7 @@ class ListStudents extends ListRecords
                     return Excel::download(new StudentsTemplateExport, 'Template_Import_Siswa.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

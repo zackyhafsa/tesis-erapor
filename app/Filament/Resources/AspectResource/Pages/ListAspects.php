@@ -53,7 +53,7 @@ class ListAspects extends ListRecords
                     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\AspectsTemplateExport, 'Template_Import_Aspek.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

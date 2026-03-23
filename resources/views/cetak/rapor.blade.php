@@ -337,13 +337,13 @@
                     <br>
 
                     <b>Kelebihan Siswa:</b><br>
-                    {{ $refleksi->kelebihan_siswa ?? 'Belum ada data refleksi.' }}<br><br>
+                    {!! $refleksi->kelebihan_siswa ?? 'Belum ada data refleksi.' !!}<br><br>
 
                     <b>Aspek yang Perlu Ditingkatkan:</b><br>
-                    {{ $refleksi->aspek_ditingkatkan ?? 'Belum ada data refleksi.' }}<br><br>
+                    {!! $refleksi->aspek_ditingkatkan ?? 'Belum ada data refleksi.' !!}<br><br>
 
                     <b>Refleksi & Tindak Lanjut:</b><br>
-                    {{ $refleksi->tindak_lanjut ?? 'Belum ada data refleksi.' }}
+                    {!! $refleksi->tindak_lanjut ?? 'Belum ada data refleksi.' !!}
                 </td>
             </tr>
         </table>

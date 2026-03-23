@@ -53,7 +53,7 @@ class ListReflections extends ListRecords
                     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ReflectionsTemplateExport, 'Template_Import_Refleksi.xlsx');
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
 }

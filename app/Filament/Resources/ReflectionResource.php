@@ -31,16 +31,16 @@ class ReflectionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Informasi Rentang Predikat')
-                    ->description('Panduan rentang skala puluhan (1-100) untuk mempermudah guru memberikan refleksi yang tepat.')
+                    ->description('Panduan rentang Nilai puluhan (1-100) untuk mempermudah guru memberikan refleksi yang tepat.')
                     ->schema([
                         Forms\Components\Placeholder::make('Sangat Baik (SB)')
-                            ->content('Skala: 91 - 100'),
+                            ->content('Nilai: 91 - 100'),
                         Forms\Components\Placeholder::make('Berkembang Sesuai Harapan (BSH)')
-                            ->content('Skala: 76 - 90'),
+                            ->content('Nilai: 76 - 90'),
                         Forms\Components\Placeholder::make('Mulai Berkembang (MB)')
-                            ->content('Skala: 61 - 75'),
+                            ->content('Nilai: 61 - 75'),
                         Forms\Components\Placeholder::make('Belum Berkembang (BB)')
-                            ->content('Skala: < 60'),
+                            ->content('Nilai: < 60'),
                     ])->columns(4)->collapsible(),
 
                 Forms\Components\Select::make('kelas')
@@ -69,28 +69,28 @@ class ReflectionResource extends Resource
                 Forms\Components\Select::make('kategori_predikat')
                     ->label('Kategori Predikat')
                     ->options([
-                        'Sangat Baik' => 'Sangat Baik (SB) [Skala 91-100]',
-                        'Baik' => 'Berkembang Sesuai Harapan (BSH) [Skala 76-90]',
-                        'Cukup' => 'Mulai Berkembang (MB) [Skala 61-75]',
-                        'Perlu Bimbingan' => 'Belum Berkembang (BB) [Skala < 60]',
+                        'Sangat Baik' => 'Sangat Baik (SB) [Nilai 91-100]',
+                        'Baik' => 'Berkembang Sesuai Harapan (BSH) [Nilai 76-90]',
+                        'Cukup' => 'Mulai Berkembang (MB) [Nilai 61-75]',
+                        'Perlu Bimbingan' => 'Belum Berkembang (BB) [Nilai < 60]',
                     ])
                     ->required(),
 
                 Forms\Components\TagsInput::make('kelebihan_siswa')
                     ->label('Kelebihan Siswa (Bisa lebih dari 1)')
-                    ->placeholder('Ketik refleksi lalu tekan garis miring (/) atau Enter')
+                    ->placeholder('Ketik Kelebihan Siswa')
                     ->helperText('Anda bebas memasukkan lebih dari satu temuan refleksi. Pisahkan dengan menekan "Enter".')
                     ->columnSpanFull(),
 
                 Forms\Components\TagsInput::make('aspek_ditingkatkan')
                     ->label('Aspek yang Perlu Ditingkatkan (Bisa lebih dari 1)')
-                    ->placeholder('Ketik refleksi lalu tekan garis miring (/) atau Enter')
+                    ->placeholder('Ketik Aspek yang Perlu Ditingkatkan')
                     ->helperText('Anda bebas memasukkan lebih dari satu temuan refleksi. Pisahkan dengan menekan "Enter".')
                     ->columnSpanFull(),
 
                 Forms\Components\TagsInput::make('tindak_lanjut')
                     ->label('Rencana Tindak Lanjut / Pengayaan (Bisa lebih dari 1)')
-                    ->placeholder('Ketik refleksi lalu tekan garis miring (/) atau Enter')
+                    ->placeholder('Ketik Rencana Tindak Lanjut / Pengayaan')
                     ->helperText('Anda bebas memasukkan lebih dari satu temuan refleksi. Pisahkan dengan menekan "Enter".')
                     ->columnSpanFull(),
             ]);
