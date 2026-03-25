@@ -24,6 +24,7 @@ class ListReflections extends ListRecords
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-excel',
                         ])
+                        ->helperText('Gunakan template terbaru. Anda bisa memisahkan poin refleksi yang lebih dari 1 dengan tombol Enter (Alt+Enter di dalam Excel) atau tanda titik koma (;).')
                         ->required(),
                 ])
                 ->action(function (array $data) {

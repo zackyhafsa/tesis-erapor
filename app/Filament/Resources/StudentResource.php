@@ -354,7 +354,7 @@ class StudentResource extends Resource
                             ->columns(2)
                             ->visible(fn (\Filament\Forms\Get $get) => $get('konsep_ketuntasan') === 'Range'),
 
-                        \Filament\Forms\Components\Section::make('Override Refleksi Manual (Opsional)')
+                        \Filament\Forms\Components\Section::make('Buat Refleksi Manual (Opsional)')
                             ->description('Kosongkan jika ingin menggunakan refleksi otomatis (dari Menu Refleksi Guru).')
                             ->schema([
                                 \Filament\Forms\Components\Textarea::make('override_kelebihan')

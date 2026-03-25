@@ -397,7 +397,7 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-2 max-md:flex-col">
-                                    <a href="https://docs.google.com/spreadsheets/d/1s_cFYzPKZwXS8WdH4sbjbsmf5sTy-86R/edit?usp=sharing&ouid=113513031459863788859&rtpof=true&sd=true"
+                                    <a href="https://docs.google.com/spreadsheets/d/1SEr5OfjQ65_K8Ikhn6KF1lV9KyBznmAn/edit?usp=sharing&ouid=113513031459863788859&rtpof=true&sd=true"
                                         target="_blank"
                                         class="px-5 py-2.5 bg-white border border-gray-200 text-sm font-semibold rounded-xl hover:border-green-500 hover:text-green-600 transition-colors text-center shadow-sm">Lihat</a>
                                     <a href="{{ asset('download/Template_Import_Refleksi.xlsx') }}" download
