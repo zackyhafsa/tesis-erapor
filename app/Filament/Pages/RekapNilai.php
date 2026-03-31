@@ -3,7 +3,6 @@
 namespace App\Filament\Pages;
 
 use App\Models\Aspect;
-use App\Models\SchoolProfile;
 use App\Models\Student;
 use App\Models\Subject;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -40,6 +39,8 @@ class RekapNilai extends Page implements HasForms
 
     public ?string $konsep_ketuntasan = 'Tidak Range';
 
+    public ?string $mode_tampil_aspek = 'semua';
+
     // Rentang nilai untuk konsep Range
     public ?int $range_tuntas_min = 75;
 
@@ -52,7 +53,7 @@ class RekapNilai extends Page implements HasForms
     public function mount()
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        
+
         // Default kelas filter jika guru yang login
         if (auth()->user()?->role === 'admin') {
             $this->kelas_filter = auth()->user()?->kelas;
@@ -81,12 +82,13 @@ class RekapNilai extends Page implements HasForms
             }
             $this->subject_id = $query->first()?->id ?? null;
         }
-        
+
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
             'kelas_filter' => $this->kelas_filter,
             'konsep_ketuntasan' => $this->konsep_ketuntasan,
+            'mode_tampil_aspek' => $this->mode_tampil_aspek,
             'range_tuntas_min' => $this->range_tuntas_min,
             'range_tuntas_max' => $this->range_tuntas_max,
             'range_tidak_tuntas_min' => $this->range_tidak_tuntas_min,
@@ -158,6 +160,16 @@ class RekapNilai extends Page implements HasForms
                     ])
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->jenis_penilaian = $state),
+
+                Select::make('mode_tampil_aspek')
+                    ->label('Tampilan Aspek')
+                    ->options([
+                        'semua' => 'Seluruh Aspek',
+                        'dinilai' => 'Hanya Aspek yang Sudah Dinilai',
+                    ])
+                    ->default('semua')
+                    ->live()
+                    ->afterStateUpdated(fn ($state) => $this->mode_tampil_aspek = $state),
 
                 Select::make('konsep_ketuntasan')
                     ->label('Konsep Ketuntasan')
@@ -310,7 +322,6 @@ class RekapNilai extends Page implements HasForms
 
         $aspects = Aspect::where('school_profile_id', $tenantId)
             ->where('jenis_penilaian', $this->jenis_penilaian)
-            // Aspek sekarang nggak dikunci per kelas lagi, jadi filter ini dihapus
             ->with('indicators')
             ->get();
 
@@ -318,7 +329,24 @@ class RekapNilai extends Page implements HasForms
         if ($this->kelas_filter) {
             $studentsQuery->where('kelas', $this->kelas_filter);
         }
-        $students = $studentsQuery->with(['scores.indicator.aspect'])->get();
+        $students = $studentsQuery->with(['scores' => function ($q) {
+            $q->where('subject_id', $this->subject_id);
+        }, 'scores.indicator.aspect'])->get();
+
+        if ($this->mode_tampil_aspek === 'dinilai') {
+            $gradedAspectIds = [];
+            foreach ($students as $student) {
+                foreach ($student->scores as $score) {
+                    if ($score->indicator && $score->indicator->aspect_id && $score->score_value !== null) {
+                        $gradedAspectIds[] = $score->indicator->aspect_id;
+                    }
+                }
+            }
+            $gradedAspectIds = array_unique($gradedAspectIds);
+
+            // Filter $aspects collection dan reset index
+            $aspects = $aspects->whereIn('id', $gradedAspectIds)->values();
+        }
 
         $rekapData = [];
 
