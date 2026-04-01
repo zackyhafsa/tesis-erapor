@@ -134,6 +134,8 @@ class RekapNilai extends Page implements HasForms
 
                         return $query->pluck('nama_mapel', 'id');
                     })
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
 
@@ -158,6 +160,8 @@ class RekapNilai extends Page implements HasForms
                         'Proyek' => 'Proyek',
                         'Kinerja' => 'Kinerja',
                     ])
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->jenis_penilaian = $state),
 
@@ -168,6 +172,8 @@ class RekapNilai extends Page implements HasForms
                         'dinilai' => 'Hanya Aspek yang Sudah Dinilai',
                     ])
                     ->default('semua')
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->mode_tampil_aspek = $state),
 
@@ -177,6 +183,8 @@ class RekapNilai extends Page implements HasForms
                         'Tidak Range' => 'Tidak Range (Otomatis dari KKTP)',
                         'Range' => 'Range (Tentukan Rentang Nilai)',
                     ])
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->konsep_ketuntasan = $state;

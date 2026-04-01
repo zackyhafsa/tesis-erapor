@@ -32,13 +32,33 @@ class AnalisisKelas extends Page implements HasForms
 
     public ?string $jenis_penilaian = 'Proyek';
 
+    public ?string $mode_tampil_aspek = 'semua';
+
     public function mount()
     {
         $tenantId = \Filament\Facades\Filament::getTenant()?->id;
-        $this->subject_id = Subject::where('school_profile_id', $tenantId)->first()->id ?? null;
+
+        $config = \App\Models\PenilaianConfig::where('school_profile_id', $tenantId)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($config) {
+            $this->subject_id = $config->subject_id ? (string) $config->subject_id : null;
+            $this->jenis_penilaian = $config->jenis_penilaian ?? 'Proyek';
+        }
+
+        if (! $this->subject_id) {
+            $query = Subject::where('school_profile_id', $tenantId);
+            if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                $query->where('kelas', auth()->user()->kelas);
+            }
+            $this->subject_id = $query->first()?->id ?? null;
+        }
+
         $this->form->fill([
             'subject_id' => $this->subject_id,
             'jenis_penilaian' => $this->jenis_penilaian,
+            'mode_tampil_aspek' => $this->mode_tampil_aspek,
         ]);
     }
 
@@ -48,7 +68,18 @@ class AnalisisKelas extends Page implements HasForms
             ->schema([
                 Select::make('subject_id')
                     ->label('Pilih Mata Pelajaran')
-                    ->options(fn () => Subject::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)->pluck('nama_mapel', 'id'))
+                    ->options(function () {
+                        $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                        $query = Subject::where('school_profile_id', $tenantId);
+
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $query->where('kelas', auth()->user()->kelas);
+                        }
+
+                        return $query->pluck('nama_mapel', 'id');
+                    })
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->subject_id = $state),
 
@@ -58,9 +89,23 @@ class AnalisisKelas extends Page implements HasForms
                         'Proyek' => 'Proyek',
                         'Kinerja' => 'Kinerja',
                     ])
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->live()
                     ->afterStateUpdated(fn ($state) => $this->jenis_penilaian = $state),
-            ])->columns(2);
+
+                Select::make('mode_tampil_aspek')
+                    ->label('Tampilan Aspek')
+                    ->options([
+                        'semua' => 'Seluruh Aspek (Default)',
+                        'dinilai' => 'Hanya Aspek yang Sudah Dinilai',
+                    ])
+                    ->default('semua')
+                    ->required()
+                    ->selectablePlaceholder(false)
+                    ->live()
+                    ->afterStateUpdated(fn ($state) => $this->mode_tampil_aspek = $state),
+            ])->columns(3);
     }
 
     public function getViewData(): array
@@ -75,8 +120,6 @@ class AnalisisKelas extends Page implements HasForms
 
         // 1. Ambil Indikator Sesuai Filter
         $aspects = Aspect::where('school_profile_id', $tenantId)->where('jenis_penilaian', $this->jenis_penilaian)->with('indicators')->get();
-        $indicators = $aspects->flatMap->indicators;
-        $indicatorIds = $indicators->pluck('id');
 
         $kelasFilter = (auth()->user()?->role === 'admin') ? auth()->user()?->kelas : null;
 
@@ -84,8 +127,27 @@ class AnalisisKelas extends Page implements HasForms
             ->when($kelasFilter, fn($q) => $q->where('kelas', $kelasFilter))
             ->pluck('id');
 
+        if ($this->mode_tampil_aspek === 'dinilai') {
+            $gradedAspectIds = \App\Models\Score::where('subject_id', $this->subject_id)
+                ->whereIn('student_id', $studentIds)
+                ->whereNotNull('score_value')
+                ->with('indicator')
+                ->get()
+                ->pluck('indicator.aspect_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+                
+            $aspects = $aspects->whereIn('id', $gradedAspectIds)->values();
+        }
+
+        $indicators = $aspects->flatMap->indicators;
+        $indicatorIds = $indicators->pluck('id');
+
         // 2. Hitung Rata-rata Per Indikator (Peta Klasikal)
-        $allScores = Score::whereIn('indicator_id', $indicatorIds)
+        $allScores = Score::where('subject_id', $this->subject_id)
+            ->whereIn('indicator_id', $indicatorIds)
             ->whereIn('student_id', $studentIds)
             ->get()->groupBy('indicator_id');
 
@@ -108,7 +170,8 @@ class AnalisisKelas extends Page implements HasForms
         $aspekKompetensi = [];
         foreach ($aspects as $aspect) {
             $aspekIndicatorIds = $aspect->indicators->pluck('id');
-            $aspekScores = Score::whereIn('indicator_id', $aspekIndicatorIds)
+            $aspekScores = Score::where('subject_id', $this->subject_id)
+                ->whereIn('indicator_id', $aspekIndicatorIds)
                 ->whereIn('student_id', $studentIds)
                 ->get();
             $avg = $aspekScores->count() > 0 ? $aspekScores->avg('score_value') : 0;
@@ -123,8 +186,9 @@ class AnalisisKelas extends Page implements HasForms
         $students = Student::where('school_profile_id', $tenantId)
             ->when($kelasFilter, fn($q) => $q->where('kelas', $kelasFilter))
             ->with(['scores' => function ($q) use ($indicatorIds) {
-            $q->whereIn('indicator_id', $indicatorIds);
-        }])->get();
+                $q->where('subject_id', $this->subject_id)
+                  ->whereIn('indicator_id', $indicatorIds);
+            }])->get();
 
         $distribusi = [
             'SB' => 0,
