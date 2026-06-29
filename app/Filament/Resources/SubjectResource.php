@@ -72,6 +72,11 @@ class SubjectResource extends Resource
                     ->label('KKTP')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diubah')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

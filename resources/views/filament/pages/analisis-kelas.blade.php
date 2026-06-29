@@ -83,14 +83,14 @@
 
             {{-- DAFTAR PENGAYAAN & REMEDIAL --}}
             <x-filament::section>
-                <x-slot name="heading">📝 Daftar Pengayaan & Remedial Peserta Didik (KKTP: {{ $kktp }})</x-slot>
+                <x-slot name="heading">📝 Daftar Pengayaan & Remedial Siswa (KKTP: {{ $kktp }})</x-slot>
                 <div class="overflow-y-auto max-h-96">
                     <table class="w-full text-sm text-left border-collapse">
                         <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0">
                             <tr>
                                 <th class="border p-2 w-12 text-center">No</th>
                                 <th class="border p-2">NIPD</th>
-                                <th class="border p-2">Nama Peserta Didik</th>
+                                <th class="border p-2">Nama Siswa</th>
                                 <th class="border p-2 text-center w-28">Nilai Akhir</th>
                                 <th class="border p-2 text-center">Predikat</th>
                                 <th class="border p-2 text-center w-28">Keputusan</th>

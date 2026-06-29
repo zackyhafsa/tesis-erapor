@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TopBottomStudentsWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Peringkat Peserta Didik (5 Tertinggi & 5 Terendah)';
+    protected static ?string $heading = 'Peringkat Siswa (5 Tertinggi & 5 Terendah)';
 
     protected static ?int $sort = 5;
 
@@ -38,7 +38,7 @@ class TopBottomStudentsWidget extends BaseWidget
                     ->rowIndex(),
 
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama Peserta Didik')
+                    ->label('Nama Siswa')
                     ->searchable()
                     ->weight('bold'),
 

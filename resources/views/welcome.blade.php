@@ -269,7 +269,7 @@
                         Kelola <span class="gradient-text">Penilaian Siswa</span> dengan Mudah & Efisien
                     </h1>
 
-                    <p class="text-base sm:text-lg text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                    <p class="text-base sm:text-lg text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed text-justify">
                         SIPEKA adalah sistem penilaian berbasis proyek dan kinerja yang dirancang khusus untuk membantu
                         guru dalam mengelola, menganalisis, dan melaporkan perkembangan siswa secara komprehensif.
                     </p>
@@ -481,7 +481,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Input Penilaian</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Masukkan skor per indikator untuk setiap siswa
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Masukkan skor per indikator untuk setiap siswa
                         dengan antarmuka yang mudah dan intuitif.</p>
                 </div>
 
@@ -497,7 +497,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Analisis Kelas</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Visualisasi data lengkap: grafik distribusi
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Visualisasi data lengkap: grafik distribusi
                         predikat, peta indikator, dan perbandingan aspek kompetensi.</p>
                 </div>
 
@@ -513,7 +513,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Cetak Rapor PDF</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Generate rapor siswa dalam format PDF yang siap
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Generate rapor siswa dalam format PDF yang siap
                         cetak dengan desain profesional dan detail lengkap.</p>
                 </div>
 
@@ -528,7 +528,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Ekspor Excel</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Ekspor data rekap nilai ke format Excel untuk
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Ekspor data rekap nilai ke format Excel untuk
                         keperluan dokumentasi dan pelaporan administratif.</p>
                 </div>
 
@@ -544,7 +544,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Import Data</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Import data siswa dan kurikulum dari file Excel
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Import data siswa dan kurikulum dari file Excel
                         untuk mempercepat proses input data awal.</p>
                 </div>
 
@@ -560,7 +560,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Dashboard Interaktif</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">Dashboard lengkap dengan radar chart, bar chart,
+                    <p class="text-sm text-gray-600 leading-relaxed text-justify">Dashboard lengkap dengan radar chart, bar chart,
                         statistik progres, dan ranking siswa secara realtime.</p>
                 </div>
             </div>
@@ -723,7 +723,7 @@
                         <p>
                             Dengan fitur seperti analisis kelas, dashboard interaktif, pencetakan rapor PDF, dan ekspor
                             data, SIPEKA membantu guru fokus pada hal yang paling penting: <strong
-                                class="text-gray-800">mendidik anak</strong>.
+                                class="text-gray-800">Siswa</strong>.
                         </p>
                     </div>
 

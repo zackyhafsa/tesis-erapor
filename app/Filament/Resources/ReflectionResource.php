@@ -126,6 +126,12 @@ class ReflectionResource extends Resource
                     ->label('Tindak Lanjut')
                     ->limit(40)
                     ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : $state),
+                    
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diubah')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

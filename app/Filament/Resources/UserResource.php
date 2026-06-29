@@ -60,10 +60,11 @@ class UserResource extends Resource
                             ->password()
                             ->revealable()
                             ->required(fn (string $operation): bool => $operation === 'create')
+                            ->rule(\Illuminate\Validation\Rules\Password::min(8)->letters()->numbers()->symbols())
                             ->dehydrated(fn (?string $state) => filled($state))
                             ->maxLength(255)
                             ->helperText(fn (string $operation): string =>
-                                $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah password.' : ''
+                                $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah password. (Jika diisi harus minimal 8 karakter, ada huruf, angka, dan simbol)' : 'Minimal 8 karakter, mengandung huruf, angka, dan simbol.'
                             ),
 
                         Forms\Components\Select::make('role')

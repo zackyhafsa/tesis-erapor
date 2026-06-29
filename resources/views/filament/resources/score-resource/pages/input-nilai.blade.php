@@ -100,11 +100,21 @@
 
                                     <div class="flex flex-wrap gap-3 mt-3">
                                         @foreach([1 => '1 - Perlu Bimbingan', 2 => '2 - Cukup', 3 => '3 - Baik', 4 => '4 - Sangat Baik'] as $value => $label)
-                                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all duration-150
-                                                                                        {{ isset($scores[(string) $indicator->id]) && $scores[(string) $indicator->id] == $value
-                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 ring-2 ring-primary-500/30'
-                                            : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500/50 text-gray-700 dark:text-gray-300'
-                                                                                        }}">
+                                            @php
+                                                $catatanProperty = 'catatan_skor_' . $value;
+                                                $tooltipText = $indicator->$catatanProperty ?? '';
+                                            @endphp
+                                            <label 
+                                                @if($tooltipText)
+                                                    x-data="{}"
+                                                    x-tooltip="'{{ str_replace(["'", "\n", "\r"], ["\'", " ", ""], $tooltipText) }}'"
+                                                    title="{{ $tooltipText }}"
+                                                @endif
+                                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all duration-150
+                                                                                            {{ isset($scores[(string) $indicator->id]) && $scores[(string) $indicator->id] == $value
+                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 ring-2 ring-primary-500/30'
+                                                : 'border-gray-300 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500/50 text-gray-700 dark:text-gray-300'
+                                                                                            }}">
                                                 <input type="radio" name="scores_{{ $indicator->id }}" value="{{ $value }}"
                                                     wire:model="scores.{{ $indicator->id }}"
                                                     class="text-primary-600 focus:ring-primary-500" />

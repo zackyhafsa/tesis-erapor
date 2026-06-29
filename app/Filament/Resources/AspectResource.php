@@ -78,6 +78,12 @@ class AspectResource extends Resource
                     ->color('info')
                     ->sortable()
                     ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diubah')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
                 // Excel Import dipindah ke halaman ListAspects.php

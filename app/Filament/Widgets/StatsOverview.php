@@ -42,7 +42,7 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make('Total Siswa', $totalSiswa)
-                ->description('Jumlah anak didik terdaftar')
+                ->description('Jumlah siswa terdaftar')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
                 

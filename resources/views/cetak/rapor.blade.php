@@ -184,7 +184,7 @@
 
     <table class="table-biodata">
         <tr>
-            <td width="18%">Nama Peserta Didik</td>
+            <td width="18%">Nama Siswa</td>
             <td width="2%">:</td>
             <td width="40%" class="text-bold">{{ $siswa->nama }}</td>
             <td width="15%">Kelas / Fase</td>

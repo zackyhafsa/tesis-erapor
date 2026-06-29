@@ -126,6 +126,12 @@ class IndicatorResource extends Resource
                     ->label('Deskripsi Kriteria')
                     ->limit(40)
                     ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diubah')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
 
             ->headerActions([
