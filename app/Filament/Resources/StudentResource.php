@@ -37,7 +37,12 @@ class StudentResource extends Resource
                             ->icon('heroicon-o-user')
                             ->columns(2)
                             ->schema([
-                                Forms\Components\TextInput::make('nipd')->label('NIPD / NISN'),
+                                Forms\Components\TextInput::make('nipd')
+                                    ->label('NISN')
+                                    ->numeric()
+                                    ->length(10)
+                                    ->rule('digits:10')
+                                    ->required(),
                                 Forms\Components\TextInput::make('nama')->label('Nama Lengkap')->required(),
                                 Forms\Components\Select::make('kelas')
                                     ->label('Kelas (Tingkat)')
@@ -149,7 +154,7 @@ class StudentResource extends Resource
             ->columns([
                 // Menampilkan kolom NIPD (Bisa dicari/Search)
                 Tables\Columns\TextColumn::make('nipd')
-                    ->label('NIPD')
+                    ->label('NISN')
                     ->searchable(),
 
                 // Menampilkan kolom Nama (Bisa dicari/Search)
