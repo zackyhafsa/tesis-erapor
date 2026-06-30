@@ -52,6 +52,9 @@ class ReflectionResource extends Resource
                         '4' => 'Kelas 4',
                         '5' => 'Kelas 5',
                         '6' => 'Kelas 6',
+                        '7' => 'Kelas 7',
+                        '8' => 'Kelas 8',
+                        '9' => 'Kelas 9',
                     ])
                     ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
                     ->disabled(fn () => auth()->user()?->role === 'admin')

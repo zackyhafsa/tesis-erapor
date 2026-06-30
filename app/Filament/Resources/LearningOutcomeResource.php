@@ -39,6 +39,8 @@ class LearningOutcomeResource extends Resource
                         '1A', '1B', '2A', '2B',
                         '3A', '3B', '4A', '4B',
                         '5A', '5B', '6A', '6B',
+                        '7A', '7B', '8A', '8B',
+                        '9A', '9B',
                     ])
                     ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
                     ->disabled(fn () => auth()->user()?->role === 'admin')
@@ -108,6 +110,9 @@ class LearningOutcomeResource extends Resource
                         '4' => 'Kelas 4',
                         '5' => 'Kelas 5',
                         '6' => 'Kelas 6',
+                        '7' => 'Kelas 7',
+                        '8' => 'Kelas 8',
+                        '9' => 'Kelas 9',
                     ])
                     ->hidden(fn () => auth()->user()?->role === 'admin'),
             ])

@@ -53,6 +53,9 @@ class StudentResource extends Resource
                                         '4' => 'Kelas 4',
                                         '5' => 'Kelas 5',
                                         '6' => 'Kelas 6',
+                                        '7' => 'Kelas 7',
+                                        '8' => 'Kelas 8',
+                                        '9' => 'Kelas 9',
                                     ])
                                     ->required()
                                     ->default(fn () => auth()->user()?->role === 'admin' ? auth()->user()?->kelas : null)
@@ -68,6 +71,7 @@ class StudentResource extends Resource
                                                 $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                                                 $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
                                                 $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
                                                 default => null,
                                             };
 
@@ -89,6 +93,7 @@ class StudentResource extends Resource
                                         'A' => 'Fase A (Kelas 1-2)',
                                         'B' => 'Fase B (Kelas 3-4)',
                                         'C' => 'Fase C (Kelas 5-6)',
+                                        'D' => 'Fase D (Kelas 7-9)',
                                     ])
                                     ->required()
                                     ->default(function () {
@@ -100,6 +105,7 @@ class StudentResource extends Resource
                                                 $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                                                 $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
                                                 $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
                                                 default => null,
                                             };
                                         }

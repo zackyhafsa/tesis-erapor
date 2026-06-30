@@ -722,7 +722,7 @@
                         </p>
                         <p>
                             Dengan fitur seperti analisis kelas, dashboard interaktif, pencetakan rapor PDF, dan ekspor
-                            data, SIPEKA membantu guru fokus pada hal yang paling penting: <strong
+                            data, SIPEKA membantu guru fokus pada hal yang paling penting yaitu <strong
                                 class="text-gray-800">Siswa</strong>.
                         </p>
                     </div>
