@@ -107,7 +107,7 @@
                                             <label 
                                                 @if($tooltipText)
                                                     x-data="{}"
-                                                    x-tooltip="'{{ str_replace(["'", "\n", "\r"], ["\'", " ", ""], $tooltipText) }}'"
+                                                    x-tooltip="{ content: '{{ str_replace(["'", "\n", "\r"], ["\'", " ", ""], $tooltipText) }}', placement: 'bottom' }"
                                                     title="{{ $tooltipText }}"
                                                 @endif
                                                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all duration-150
