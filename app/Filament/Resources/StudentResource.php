@@ -43,6 +43,7 @@ class StudentResource extends Resource
                                     ->length(10)
                                     ->rule('digits:10')
                                     ->required()
+                                    ->extraInputAttributes(['oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"])
                                     ->rule(function ($record) {
                                         return function (string $attribute, $value, \Closure $fail) use ($record) {
                                             $query = \App\Models\Student::where('nipd', $value);
