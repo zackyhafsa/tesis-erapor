@@ -14,7 +14,8 @@ class AspectsTemplateExport implements WithHeadings, WithTitle, WithStyles
         return [
             'Jenis Penilaian',
             'Nama Aspek',
-            'Kelas (Opsional untuk Guru)'
+            'Kelas (Opsional untuk Guru)',
+            'Fase (Otomatis)'
         ];
     }
 

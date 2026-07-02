@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts
+class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts, WithValidation
 {
     /**
     * @param array $row
@@ -52,6 +52,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts
                 $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                 $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
                 $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
                 default => $row['fase'] ?? null,
             };
         } else {
@@ -66,6 +67,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts
                     $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
                     $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
                     $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
                     default => null,
                 };
             }
@@ -111,5 +113,22 @@ class StudentsImport implements ToModel, WithHeadingRow, WithBatchInserts
     public function batchSize(): int
     {
         return 100;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nipd_nisn' => 'required|numeric|digits:10|unique:students,nipd',
+        ];
+    }
+
+    public function customValidationMessages()
+    {
+        return [
+            'nipd_nisn.required' => 'NISN wajib diisi.',
+            'nipd_nisn.numeric'  => 'NISN harus berupa angka.',
+            'nipd_nisn.digits'   => 'NISN harus terdiri dari tepat 10 digit angka.',
+            'nipd_nisn.unique'   => 'NISN ini sudah terdaftar pada siswa lain.',
+        ];
     }
 }

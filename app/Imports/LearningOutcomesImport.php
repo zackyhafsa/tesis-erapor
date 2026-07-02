@@ -47,6 +47,17 @@ class LearningOutcomesImport implements ToModel, WithHeadingRow, WithBatchInsert
         $cp->kelas = $kelasImport;
         $cp->deskripsi = trim($row['deskripsi_cp']);
 
+        if (!empty($cp->kelas)) {
+            $angkaKelas = (int) $cp->kelas;
+            $cp->fase = match (true) {
+                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                default => $row['fase'] ?? null,
+            };
+        }
+
         return $cp;
     }
 

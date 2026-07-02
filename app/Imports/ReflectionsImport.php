@@ -38,6 +38,17 @@ class ReflectionsImport implements ToModel, WithHeadingRow, WithBatchInserts
             $reflection->kelas = $row['kelas'] ?? $row['kelas_opsional_untuk_guru'] ?? null;
         }
 
+        if (!empty($reflection->kelas)) {
+            $angkaKelas = (int) $reflection->kelas;
+            $reflection->fase = match (true) {
+                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                default => $row['fase'] ?? null,
+            };
+        }
+
         return $reflection;
     }
 

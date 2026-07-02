@@ -14,7 +14,8 @@ class LearningObjectivesTemplateExport implements WithHeadings, WithTitle, WithS
         return [
             'Nama Mata Pelajaran',
             'Deskripsi TP',
-            'Kelas (Opsional untuk Guru)'
+            'Kelas (Opsional untuk Guru)',
+            'Fase (Otomatis)'
         ];
     }
 

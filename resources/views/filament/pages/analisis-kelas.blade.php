@@ -89,7 +89,7 @@
                         <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0">
                             <tr>
                                 <th class="border p-2 w-12 text-center">No</th>
-                                <th class="border p-2">NIPD</th>
+                                <th class="border p-2">NISN</th>
                                 <th class="border p-2">Nama Siswa</th>
                                 <th class="border p-2 text-center w-28">Nilai Akhir</th>
                                 <th class="border p-2 text-center">Predikat</th>

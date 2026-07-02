@@ -20,7 +20,8 @@ class IndicatorsTemplateExport implements WithHeadings, WithTitle, WithStyles
             'Rubrik Skor 2',
             'Rubrik Skor 3',
             'Rubrik Skor 4',
-            'Kelas (Opsional untuk Guru)'
+            'Kelas (Opsional untuk Guru)',
+            'Fase (Otomatis)'
         ];
     }
 

@@ -47,6 +47,17 @@ class LearningObjectivesImport implements ToModel, WithHeadingRow, WithBatchInse
         $tp->kelas = $kelasImport;
         $tp->deskripsi = trim($row['deskripsi_tp']);
 
+        if (!empty($tp->kelas)) {
+            $angkaKelas = (int) $tp->kelas;
+            $tp->fase = match (true) {
+                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                default => $row['fase'] ?? null,
+            };
+        }
+
         return $tp;
     }
 

@@ -42,7 +42,18 @@ class StudentResource extends Resource
                                     ->numeric()
                                     ->length(10)
                                     ->rule('digits:10')
-                                    ->required(),
+                                    ->required()
+                                    ->rule(function ($record) {
+                                        return function (string $attribute, $value, \Closure $fail) use ($record) {
+                                            $query = \App\Models\Student::where('nipd', $value);
+                                            if ($record) {
+                                                $query->where('id', '!=', $record->id);
+                                            }
+                                            if ($query->exists()) {
+                                                $fail('NISN ini sudah terdaftar pada siswa lain (meskipun di sekolah/kelas berbeda).');
+                                            }
+                                        };
+                                    }),
                                 Forms\Components\TextInput::make('nama')->label('Nama Lengkap')->required(),
                                 Forms\Components\Select::make('kelas')
                                     ->label('Kelas (Tingkat)')

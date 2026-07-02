@@ -56,6 +56,17 @@ class IndicatorsImport implements ToModel, WithHeadingRow, WithBatchInserts
         $indicator->catatan_skor_3 = $row['rubrik_skor_3'] ?? null;
         $indicator->catatan_skor_4 = $row['rubrik_skor_4'] ?? null;
 
+        if (!empty($indicator->kelas)) {
+            $angkaKelas = (int) $indicator->kelas;
+            $indicator->fase = match (true) {
+                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                default => $row['fase'] ?? null,
+            };
+        }
+
         return $indicator;
     }
 

@@ -14,7 +14,8 @@ class LearningOutcomesTemplateExport implements WithHeadings, WithTitle, WithSty
         return [
             'Nama Mata Pelajaran',
             'Deskripsi CP',
-            'Kelas (Opsional untuk Guru)'
+            'Kelas (Opsional untuk Guru)',
+            'Fase (Otomatis)'
         ];
     }
 

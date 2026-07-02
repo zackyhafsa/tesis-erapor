@@ -14,7 +14,8 @@ class SubjectsTemplateExport implements WithHeadings, WithTitle, WithStyles
         return [
             'Nama Mata Pelajaran',
             'KKTP',
-            'Kelas (Opsional untuk Guru)'
+            'Kelas (Opsional untuk Guru)',
+            'Fase (Otomatis)'
         ];
     }
 

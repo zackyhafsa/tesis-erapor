@@ -47,8 +47,48 @@ class IndicatorResource extends Resource
                     ->disabled(fn () => auth()->user()?->role === 'admin')
                     ->dehydrated()
                     ->required()
-                    ->live()
-                    ->afterStateUpdated(fn (Forms\Set $set) => $set('aspect_id', null)),
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                        $set('aspect_id', null);
+                        if ($state) {
+                            $angkaKelas = (int) $state;
+                            $fase = match (true) {
+                                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                                default => null,
+                            };
+                            if ($fase) {
+                                $set('fase', $fase);
+                            }
+                        }
+                    }),
+                Forms\Components\Select::make('fase')
+                    ->label('Fase')
+                    ->options([
+                        'A' => 'Fase A (Kelas 1-2)',
+                        'B' => 'Fase B (Kelas 3-4)',
+                        'C' => 'Fase C (Kelas 5-6)',
+                        'D' => 'Fase D (Kelas 7-9)',
+                    ])
+                    ->required()
+                    ->default(function () {
+                        if (auth()->user()?->role === 'admin' && auth()->user()?->kelas) {
+                            $kelas = auth()->user()->kelas;
+                            $angkaKelas = (int) $kelas;
+                            return match (true) {
+                                $angkaKelas >= 1 && $angkaKelas <= 2 => 'A',
+                                $angkaKelas >= 3 && $angkaKelas <= 4 => 'B',
+                                $angkaKelas >= 5 && $angkaKelas <= 6 => 'C',
+                                $angkaKelas >= 7 && $angkaKelas <= 9 => 'D',
+                                default => null,
+                            };
+                        }
+                        return null;
+                    })
+                    ->disabled()
+                    ->dehydrated(),
 
                 Forms\Components\Select::make('aspect_id')
                     ->relationship('aspect', 'nama_aspek', function ($query, Forms\Get $get) {
@@ -105,6 +145,15 @@ class IndicatorResource extends Resource
                     ->color('info')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('fase')
+                    ->label('Fase')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'A' => 'info',
+                        'B' => 'warning',
+                        'C' => 'success',
+                        default => 'gray',
+                    }),
 
                 // 1. Menampilkan Jenis Penilaian (Dari tabel relasi Aspek)
                 Tables\Columns\TextColumn::make('aspect.jenis_penilaian')
