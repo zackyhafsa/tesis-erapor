@@ -43,38 +43,55 @@ class SchoolProfileResource extends Resource
                 Forms\Components\Section::make('Identitas Sekolah')
                     ->columns(3) // Dibagi jadi 3 kolom agar rapi menyamping
                     ->schema([
-                        Forms\Components\TextInput::make('nama_sekolah')->required(),
-                        Forms\Components\TextInput::make('npsn')->label('NPSN'),
-                        Forms\Components\TextInput::make('nss')->label('NSS'),
+                        Forms\Components\TextInput::make('nama_sekolah')
+                            ->required(),
+                        Forms\Components\TextInput::make('npsn')
+                            ->label('NPSN')
+                            ->numeric()
+                            ->minLength(8)
+                            ->maxLength(8)
+                            ->extraInputAttributes(['oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"])
+                            ->required(),
+                        Forms\Components\TextInput::make('nss')
+                            ->label('NSS')
+                            ->numeric()
+                            ->minLength(12)
+                            ->maxLength(12)
+                            ->extraInputAttributes(['oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"])
+                            ->required(),
                     ]),
 
                 Forms\Components\Section::make('Alamat Sekolah')
                     ->columns(3)
                     ->schema([
-                        Forms\Components\TextInput::make('alamat')->columnSpanFull(),
-                        Forms\Components\TextInput::make('desa'),
-                        Forms\Components\TextInput::make('kecamatan'),
-                        Forms\Components\TextInput::make('kabupaten'),
-                        Forms\Components\TextInput::make('provinsi'),
-                        Forms\Components\TextInput::make('kode_pos'),
+                        Forms\Components\TextInput::make('alamat')->columnSpanFull()->required(),
+                        Forms\Components\TextInput::make('desa')->required(),
+                        Forms\Components\TextInput::make('kecamatan')->required(),
+                        Forms\Components\TextInput::make('kabupaten')->required(),
+                        Forms\Components\TextInput::make('provinsi')->required(),
+                        Forms\Components\TextInput::make('kode_pos')->numeric(),
                     ]),
 
                 Forms\Components\Section::make('Informasi Akademik')
                     ->columns(2)
                     ->schema([
-                        Forms\Components\TextInput::make('semester')->label('Semester (Contoh: I (Satu))'),
-                        Forms\Components\TextInput::make('tahun_pelajaran')->label('Tahun Pelajaran'),
+                        Forms\Components\TextInput::make('semester')
+                            ->label('Semester (Contoh: I (Satu))')
+                            ->required(),
+                        Forms\Components\TextInput::make('tahun_pelajaran')
+                            ->label('Tahun Pelajaran')
+                            ->required(),
                     ]),
 
                 Forms\Components\Section::make('Penandatangan & Rapor')
                     ->columns(2)
                     ->schema([
-                        Forms\Components\TextInput::make('kepala_sekolah')->label('Nama Kepala Sekolah'),
-                        Forms\Components\TextInput::make('nip_kepsek')->label('NIP Kepala Sekolah'),
-                        Forms\Components\TextInput::make('guru_kelas')->label('Nama Guru Kelas'),
-                        Forms\Components\TextInput::make('nip_guru')->label('NIP Guru Kelas'),
-                        Forms\Components\TextInput::make('tempat_cetak')->label('Tempat Rapor (Contoh: Kertajati)'),
-                        Forms\Components\DatePicker::make('tanggal_cetak')->label('Tanggal Cetak Rapor'),
+                        Forms\Components\TextInput::make('kepala_sekolah')->label('Nama Kepala Sekolah')->required(),
+                        Forms\Components\TextInput::make('nip_kepsek')->label('NIP Kepala Sekolah')->required(),
+                        Forms\Components\TextInput::make('guru_kelas')->label('Nama Guru Kelas')->required(),
+                        Forms\Components\TextInput::make('nip_guru')->label('NIP Guru Kelas')->required(),
+                        Forms\Components\TextInput::make('tempat_cetak')->label('Tempat Rapor (Contoh: Kertajati)')->required(),
+                        Forms\Components\DatePicker::make('tanggal_cetak')->label('Tanggal Cetak Rapor')->required(),
                     ]),
 
                 \Filament\Forms\Components\Section::make('Logo Sekolah & Dinas')

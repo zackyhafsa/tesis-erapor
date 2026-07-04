@@ -23,9 +23,12 @@ class ProgresInputWidget extends BaseWidget
         $indicatorQuery = Indicator::where('school_profile_id', $tenantId);
         $scoreQuery = Score::where('school_profile_id', $tenantId);
 
+        $subjectQuery = \App\Models\Subject::where('school_profile_id', $tenantId);
+
         if ($userRole === 'admin' && $userKelas) {
             $studentQuery->where('kelas', $userKelas);
             $indicatorQuery->where('kelas', $userKelas);
+            $subjectQuery->where('kelas', $userKelas);
             $scoreQuery->whereHas('student', function ($q) use ($userKelas) {
                 $q->where('kelas', $userKelas);
             });
@@ -33,18 +36,23 @@ class ProgresInputWidget extends BaseWidget
 
         $totalSiswa = $studentQuery->count();
         $totalIndikator = $indicatorQuery->clone()->count();
-        $targetTotal = $totalSiswa * $totalIndikator;
+        $totalSubject = $subjectQuery->count();
+        
+        // Target total nilai = Jumlah Siswa x Jumlah Indikator x Jumlah Mata Pelajaran
+        $targetTotal = $totalSiswa * $totalIndikator * $totalSubject;
+        $targetPerSiswa = $totalIndikator * $totalSubject;
 
         $sudahDinilai = $scoreQuery->count();
         $persentase = $targetTotal > 0 ? round(($sudahDinilai / $targetTotal) * 100, 1) : 0;
+        if ($persentase > 100) $persentase = 100;
 
-        // Siswa yang sudah dinilai LENGKAP (semua indikator terisi)
+        // Siswa yang sudah dinilai LENGKAP (semua indikator terisi untuk semua mapel)
         $siswaLengkap = 0;
-        if ($totalIndikator > 0) {
+        if ($targetPerSiswa > 0) {
             $siswaLengkap = $studentQuery->clone()
                 ->withCount('scores')
                 ->get()
-                ->filter(fn ($s) => $s->scores_count >= $totalIndikator)
+                ->filter(fn ($s) => $s->scores_count >= $targetPerSiswa)
                 ->count();
         }
         $siswaBelum = $totalSiswa - $siswaLengkap;

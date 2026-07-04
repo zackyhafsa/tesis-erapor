@@ -10,11 +10,11 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
-class TopBottomStudentsWidget extends BaseWidget
+class BottomStudentsWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Peringkat Siswa (5 Tertinggi & 5 Terendah)';
+    protected static ?string $heading = 'Peringkat 5 Siswa Terendah';
 
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 6;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -24,11 +24,22 @@ class TopBottomStudentsWidget extends BaseWidget
         $userRole = auth()->user()?->role;
         $userKelas = auth()->user()?->kelas;
 
-        $query = Student::query()->where('school_profile_id', $tenantId)->whereHas('scores');
+        $baseQuery = Student::query()
+            ->where('school_profile_id', $tenantId)
+            ->whereHas('scores')
+            ->withAvg('scores as rata_rata_skor', 'score_value');
 
         if ($userRole === 'admin' && $userKelas) {
-            $query->where('kelas', $userKelas);
+            $baseQuery->where('kelas', $userKelas);
         }
+
+        // Ambil ID 5 terendah
+        $ids = (clone $baseQuery)->orderBy('rata_rata_skor', 'asc')->limit(5)->pluck('id')->toArray();
+
+        // Query final untuk ditampilkan di tabel
+        $query = Student::query()
+            ->whereIn('id', $ids)
+            ->withAvg('scores as rata_rata_skor', 'score_value');
 
         return $table
             ->query($query)
@@ -44,15 +55,12 @@ class TopBottomStudentsWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('rata_rata_skor')
                     ->label('Rata-rata (Skala 4)')
-                    ->getStateUsing(function (Student $record): string {
-                        $avg = $record->scores()->avg('score_value');
-                        return number_format($avg ?? 0, 2);
-                    })
+                    ->getStateUsing(fn (Student $record): string => number_format($record->rata_rata_skor ?? 0, 2))
                     ->alignCenter()
                     ->badge()
+                    ->sortable()
                     ->color(function (Student $record): string {
-                        $avg = $record->scores()->avg('score_value');
-                        $nilai = (($avg ?? 0) / 4) * 100;
+                        $nilai = (($record->rata_rata_skor ?? 0) / 4) * 100;
                         if ($nilai > 90) return 'success';
                         if ($nilai > 75) return 'info';
                         if ($nilai > 60) return 'warning';
@@ -61,27 +69,22 @@ class TopBottomStudentsWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('nilai_100')
                     ->label('Nilai (Skala 100)')
-                    ->getStateUsing(function (Student $record): string {
-                        $avg = $record->scores()->avg('score_value');
-                        return round((($avg ?? 0) / 4) * 100);
-                    })
+                    ->getStateUsing(fn (Student $record): string => (string) round((($record->rata_rata_skor ?? 0) / 4) * 100))
                     ->alignCenter()
                     ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('predikat')
                     ->label('Predikat')
                     ->getStateUsing(function (Student $record): string {
-                        $avg = $record->scores()->avg('score_value');
-                        $nilai = (($avg ?? 0) / 4) * 100;
-                        if ($nilai > 90) return 'Sangat Berkembang';
-                        if ($nilai > 75) return 'Berkembang Sesuai Harapan';
-                        if ($nilai > 60) return 'Mulai Berkembang';
-                        return 'Belum Berkembang';
+                        $nilai = (($record->rata_rata_skor ?? 0) / 4) * 100;
+                        if ($nilai > 90) return 'Sangat Baik (SB)';
+                        if ($nilai > 75) return 'Berkembang Sesuai Harapan (BSH)';
+                        if ($nilai > 60) return 'Mulai Berkembang (MB)';
+                        return 'Belum Berkembang (BB)';
                     })
                     ->badge()
                     ->color(function (Student $record): string {
-                        $avg = $record->scores()->avg('score_value');
-                        $nilai = (($avg ?? 0) / 4) * 100;
+                        $nilai = (($record->rata_rata_skor ?? 0) / 4) * 100;
                         if ($nilai > 90) return 'success';
                         if ($nilai > 75) return 'info';
                         if ($nilai > 60) return 'warning';
@@ -90,28 +93,31 @@ class TopBottomStudentsWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('jumlah_nilai')
                     ->label('Jml Dinilai')
-                    ->getStateUsing(function (Student $record): string {
-                        $userRole = auth()->user()?->role;
-                        $userKelas = auth()->user()?->kelas;
-                        $totalInd = Indicator::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)
+                    ->getStateUsing(function (Student $record) use ($tenantId, $userRole, $userKelas): string {
+                        $totalInd = \App\Models\Indicator::where('school_profile_id', $tenantId)
                             ->when($userRole === 'admin' && $userKelas, fn ($q) => $q->where('kelas', $userKelas))
                             ->count();
+                        $totalSubj = \App\Models\Subject::where('school_profile_id', $tenantId)
+                            ->when($userRole === 'admin' && $userKelas, fn ($q) => $q->where('kelas', $userKelas))
+                            ->count();
+                        $target = $totalInd * $totalSubj;
                         $dinilai = $record->scores()->count();
-                        return $dinilai . '/' . $totalInd;
+                        return $dinilai . '/' . $target;
                     })
                     ->alignCenter()
-                    ->color(function (Student $record): string {
-                        $userRole = auth()->user()?->role;
-                        $userKelas = auth()->user()?->kelas;
-                        $totalInd = Indicator::where('school_profile_id', \Filament\Facades\Filament::getTenant()?->id)
+                    ->color(function (Student $record) use ($tenantId, $userRole, $userKelas): string {
+                        $totalInd = \App\Models\Indicator::where('school_profile_id', $tenantId)
                             ->when($userRole === 'admin' && $userKelas, fn ($q) => $q->where('kelas', $userKelas))
                             ->count();
+                        $totalSubj = \App\Models\Subject::where('school_profile_id', $tenantId)
+                            ->when($userRole === 'admin' && $userKelas, fn ($q) => $q->where('kelas', $userKelas))
+                            ->count();
+                        $target = $totalInd * $totalSubj;
                         $dinilai = $record->scores()->count();
-                        return $dinilai >= $totalInd ? 'success' : 'warning';
+                        return $dinilai >= $target && $target > 0 ? 'success' : 'warning';
                     }),
             ])
-            ->defaultSort('nama')
-            ->paginated([10])
-            ->defaultPaginationPageOption(10);
+            ->defaultSort('rata_rata_skor', 'asc')
+            ->paginated(false);
     }
 }
