@@ -134,6 +134,8 @@ class UserResource extends Resource
                             ])
                             ->required(fn (Forms\Get $get) => $get('role') === 'admin')
                             ->hidden(fn (Forms\Get $get) => $get('role') === 'superadmin')
+                            ->disabled()
+                            ->dehydrated()
                             ->default(function (Forms\Get $get) {
                                 $kelas = $get('kelas');
                                 if ($kelas) {

@@ -124,7 +124,7 @@ class StudentResource extends Resource
 
                                         return null;
                                     })
-                                    ->disabled(fn () => auth()->user()?->role === 'admin')
+                                    ->disabled()
                                     ->dehydrated(),
                                 Forms\Components\Select::make('jenis_kelamin')->label('Jenis Kelamin')->options(['L' => 'Laki-laki', 'P' => 'Perempuan']),
                                 Forms\Components\TextInput::make('agama')->label('Agama'),

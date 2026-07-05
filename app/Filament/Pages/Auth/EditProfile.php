@@ -68,6 +68,8 @@ class EditProfile extends BaseEditProfile
                     ])
                     ->visible(fn () => auth()->user()?->role === 'admin')
                     ->required(fn () => auth()->user()?->role === 'admin')
+                    ->disabled()
+                    ->dehydrated()
                     ->default(function (\Filament\Forms\Get $get) {
                         $kelas = $get('kelas');
                         if ($kelas) {
